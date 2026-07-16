@@ -41,13 +41,13 @@ export async function POST(
 
     const supabase = getSupabaseAdminClient();
 
-    // Prevent adding if applicant is already in an active deployment
-    const { data: existingActive } = await (supabase as any)
+    const { data: existingActiveList } = await (supabase as any)
       .from("deployments")
       .select("id, batch:batches(batch_label)")
       .eq("applicant_id", parsed.data.applicant_id)
-      .is("deployment_end_date", null)
-      .maybeSingle();
+      .limit(1);
+
+    const existingActive = existingActiveList && existingActiveList.length > 0 ? existingActiveList[0] : null;
 
     if (existingActive) {
       const bLabel = Array.isArray(existingActive.batch) 

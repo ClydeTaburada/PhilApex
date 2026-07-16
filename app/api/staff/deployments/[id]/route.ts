@@ -26,6 +26,14 @@ export async function PATCH(
       .select()
       .single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    if (parsed.data.deployment_status === "Dispatched") {
+      await (supabase as any)
+        .from("applicants")
+        .update({ pipeline_stage: "deployed" })
+        .eq("id", data.applicant_id);
+    }
+
     return NextResponse.json(data);
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });

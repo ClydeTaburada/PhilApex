@@ -32,12 +32,16 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
     program_name: "",
     trade: "",
     gender_requirement: "" as "" | "male" | "female",
+    accreditation_id: "",
+    foreign_partner_id: "",
   });
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [trades, setTrades] = useState<string[]>([]);
   const [programs, setPrograms] = useState<{ id: string; name: string; country: string }[]>([]);
+  const [partners, setPartners] = useState<{ id: string; name: string; is_final_employer: boolean }[]>([]);
+  const [accreditations, setAccreditations] = useState<{ id: string; dmw_ref_id: string }[]>([]);
 
   useEffect(() => {
     fetch("/api/public/trades")
@@ -51,6 +55,20 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setPrograms(data);
+      })
+      .catch((err) => console.error(err));
+
+    fetch("/api/staff/partners")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setPartners(data.filter((p: any) => p.is_final_employer));
+      })
+      .catch((err) => console.error(err));
+
+    fetch("/api/staff/accreditations")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setAccreditations(data);
       })
       .catch((err) => console.error(err));
   }, []);
@@ -215,6 +233,26 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="form-field">
+                  <label className="form-label">Accreditation</label>
+                  <select value={form.accreditation_id} onChange={(e) => setForm((prev) => ({ ...prev, accreditation_id: e.target.value }))} className="form-select">
+                    <option value="">Select an accreditation...</option>
+                    {accreditations.map((a) => (
+                      <option key={a.id} value={a.id}>{a.dmw_ref_id}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Company (Final Employer)</label>
+                  <select value={form.foreign_partner_id} onChange={(e) => setForm((prev) => ({ ...prev, foreign_partner_id: e.target.value }))} className="form-select">
+                    <option value="">Select a company...</option>
+                    {partners.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="form-field">
                   <label className="form-label">Country</label>
                   <input 
                     value={form.country} 
@@ -304,6 +342,8 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                         program_name: form.program_name,
                         trade: form.trade,
                         gender_requirement: form.gender_requirement || null,
+                        accreditation_id: form.accreditation_id || null,
+                        foreign_partner_id: form.foreign_partner_id || null,
                         slots_total: form.manpower_requested,
                         slots_filled: 0,
                       }),
@@ -321,6 +361,8 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                       program_name: "",
                       trade: "",
                       gender_requirement: "",
+                      accreditation_id: "",
+                      foreign_partner_id: "",
                     });
                     setTimeout(() => setShowCreateModal(false), 700);
                   } catch (err: unknown) {

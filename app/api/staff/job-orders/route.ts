@@ -34,6 +34,8 @@ export async function POST(request: Request) {
 
     const mutationPayload = {
       job_order_number: parsed.data.job_order_number ?? null,
+      accreditation_id: parsed.data.accreditation_id ?? null,
+      foreign_partner_id: parsed.data.foreign_partner_id ?? null,
       position: parsed.data.position ?? null,
       class: parsed.data.class ?? null,
       manpower_requested: parsed.data.manpower_requested ?? null,
