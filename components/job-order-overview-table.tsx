@@ -22,6 +22,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
   const [selectedJobOrder, setSelectedJobOrder] = useState<JobOrderDetail | null>(null);
   const [page, setPage] = useState(1);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     job_order_number: "",
     position: "",
@@ -74,6 +75,24 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
   }, []);
 
   const totalPages = Math.max(1, Math.ceil(jobOrderDetails.length / PAGE_SIZE));
+
+  const handleEdit = (jo: JobOrderDetail["jobOrder"]) => {
+    setForm({
+      job_order_number: jo.job_order_number || "",
+      position: jo.position || "",
+      class: jo.class as any || "direct",
+      manpower_requested: jo.slots_total || 1,
+      jo_validity_date: jo.jo_validity_date || "",
+      country: jo.country || "",
+      program_name: jo.program_name || "",
+      trade: jo.trade || "",
+      gender_requirement: jo.gender_requirement as any || "",
+      accreditation_id: jo.accreditation_id || "",
+      foreign_partner_id: jo.foreign_partner_id || "",
+    });
+    setEditingId(jo.id);
+    setShowCreateModal(true);
+  };
 
   const paginatedItems = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE;
@@ -142,13 +161,24 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                       )}
                     </td>
                     <td>
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => setSelectedJobOrder({ jobOrder, batches, deploymentsByBatch })}
-                      >
-                        Manage ({batches.length} {batches.length === 1 ? "batch" : "batches"})
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => setSelectedJobOrder({ jobOrder, batches, deploymentsByBatch })}
+                        >
+                          Manage ({batches.length})
+                        </button>
+                        {staffRole === "admin" && (
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-sm text-brand-primary"
+                            onClick={() => handleEdit(jobOrder)}
+                          >
+                            Edit
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -197,7 +227,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
           <div className="w-full max-w-xl rounded-2xl bg-white p-5 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-semibold text-lg">Create Job Order</h3>
+                <h3 className="font-semibold text-lg">{editingId ? "Edit Job Order" : "Create Job Order"}</h3>
                 <p className="text-sm text-ink-muted">Add a new job order so staff can create batches and assign applicants.</p>
               </div>
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => setShowCreateModal(false)}>
@@ -304,7 +334,23 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
             </div>
 
             <div className="mt-4 flex justify-end gap-2">
-              <button type="button" className="btn btn-ghost" onClick={() => setShowCreateModal(false)}>
+              <button type="button" className="btn btn-ghost" onClick={() => {
+                setShowCreateModal(false);
+                setEditingId(null);
+                setForm({
+                  job_order_number: "",
+                  position: "",
+                  class: "direct",
+                  manpower_requested: 1,
+                  jo_validity_date: "",
+                  country: "",
+                  program_name: "",
+                  trade: "",
+                  gender_requirement: "",
+                  accreditation_id: "",
+                  foreign_partner_id: "",
+                });
+              }}>
                 Cancel
               </button>
               <button
@@ -333,6 +379,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
+                        id: editingId || undefined,
                         job_order_number: form.job_order_number,
                         position: form.position,
                         class: form.class,
@@ -350,7 +397,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                     });
                     const body = await res.json();
                     if (!res.ok) throw new Error(body.error || "Unable to create job order");
-                    setFeedback("Job order created successfully.");
+                    setFeedback(editingId ? "Job order updated successfully." : "Job order created successfully.");
                     setForm({
                       job_order_number: "",
                       position: "",
@@ -364,7 +411,10 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                       accreditation_id: "",
                       foreign_partner_id: "",
                     });
-                    setTimeout(() => setShowCreateModal(false), 700);
+                    setTimeout(() => {
+                      setShowCreateModal(false);
+                      setEditingId(null);
+                    }, 700);
                   } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : "Unable to create job order";
                     setCreateError(message);
@@ -373,7 +423,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                   }
                 }}
               >
-                {saving ? "Creating…" : "Create Job Order"}
+                {saving ? (editingId ? "Saving…" : "Creating…") : (editingId ? "Save Changes" : "Create Job Order")}
               </button>
             </div>
           </div>

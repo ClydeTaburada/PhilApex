@@ -46,21 +46,13 @@ DELETE FROM public.applicants;
 -- 7) Job orders (references accreditations + foreign_partners)
 DELETE FROM public.job_orders;
 
--- 8) Accreditation history (references accreditations)
-DELETE FROM public.accreditation_history;
-
--- 9) Accreditations (references foreign_partners)
-DELETE FROM public.accreditations;
-
--- 10) Foreign partners (self-referencing, delete children first)
-DELETE FROM public.foreign_partners WHERE parent_partner_id IS NOT NULL;
-DELETE FROM public.foreign_partners;
-
--- 11) Programs
-DELETE FROM public.programs;
-
--- 12) Trades
-DELETE FROM public.trades;
+-- We will PRESERVE reference data so you don't have to re-create it:
+-- DELETE FROM public.accreditation_history;
+-- DELETE FROM public.accreditations;
+-- DELETE FROM public.foreign_partners WHERE parent_partner_id IS NOT NULL;
+-- DELETE FROM public.foreign_partners;
+-- DELETE FROM public.programs;
+-- DELETE FROM public.trades;
 
 -- 13) Rate limit tracking
 DELETE FROM public.public_registration_rate_limits;
