@@ -31,6 +31,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
     country: "",
     program_name: "",
     trade: "",
+    gender_requirement: "" as "" | "male" | "female",
   });
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -251,14 +252,24 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                   </select>
                 </div>
               </div>
-              <div className="form-field">
-                <label className="form-label">Trade</label>
-                <select value={form.trade} onChange={(e) => setForm((prev) => ({ ...prev, trade: e.target.value }))} className="form-select">
-                  <option value="">Select a trade...</option>
-                  {trades.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="form-field">
+                  <label className="form-label">Trade</label>
+                  <select value={form.trade} onChange={(e) => setForm((prev) => ({ ...prev, trade: e.target.value }))} className="form-select">
+                    <option value="">Select a trade...</option>
+                    {trades.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Gender Requirement</label>
+                  <select value={form.gender_requirement} onChange={(e) => setForm((prev) => ({ ...prev, gender_requirement: e.target.value as any }))} className="form-select">
+                    <option value="">Any Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -300,7 +311,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                         country: form.country,
                         program_name: form.program_name,
                         trade: form.trade,
-                        gender_requirement: null,
+                        gender_requirement: form.gender_requirement || null,
                         slots_total: form.manpower_requested,
                         slots_filled: 0,
                       }),
@@ -317,6 +328,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                       country: "",
                       program_name: "",
                       trade: "",
+                      gender_requirement: "",
                     });
                     setTimeout(() => setShowCreateModal(false), 700);
                   } catch (err: unknown) {
