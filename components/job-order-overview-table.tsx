@@ -41,7 +41,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
   const [trades, setTrades] = useState<string[]>([]);
   const [programs, setPrograms] = useState<{ id: string; name: string; country: string }[]>([]);
   const [partners, setPartners] = useState<{ id: string; name: string; is_final_employer: boolean }[]>([]);
-  const [accreditations, setAccreditations] = useState<{ id: string; dmw_ref_id: string }[]>([]);
+  const [accreditations, setAccreditations] = useState<{ id: string; accreditation_id_dmw: string }[]>([]);
 
   useEffect(() => {
     fetch("/api/public/trades")
@@ -237,7 +237,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                   <select value={form.accreditation_id} onChange={(e) => setForm((prev) => ({ ...prev, accreditation_id: e.target.value }))} className="form-select">
                     <option value="">Select an accreditation...</option>
                     {accreditations.map((a) => (
-                      <option key={a.id} value={a.id}>{a.dmw_ref_id}</option>
+                      <option key={a.id} value={a.id}>{a.accreditation_id_dmw}</option>
                     ))}
                   </select>
                 </div>
