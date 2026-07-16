@@ -195,15 +195,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                 <label className="form-label">JO Number</label>
                 <input value={form.job_order_number} onChange={(e) => setForm((prev) => ({ ...prev, job_order_number: e.target.value }))} className="form-input" placeholder="JO-1002" />
               </div>
-              <div className="form-field">
-                <label className="form-label">Position</label>
-                  <select value={form.position} onChange={(e) => setForm((prev) => ({ ...prev, position: e.target.value }))} className="form-select">
-                    <option value="">Select a position...</option>
-                    {trades.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-              </div>
+
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="form-field">
                   <label className="form-label">Class</label>
@@ -254,8 +246,8 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="form-field">
-                  <label className="form-label">Trade</label>
-                  <select value={form.trade} onChange={(e) => setForm((prev) => ({ ...prev, trade: e.target.value }))} className="form-select">
+                  <label className="form-label">Trade / Position</label>
+                  <select value={form.trade} onChange={(e) => setForm((prev) => ({ ...prev, trade: e.target.value, position: e.target.value }))} className="form-select">
                     <option value="">Select a trade...</option>
                     {trades.map((t) => (
                       <option key={t} value={t}>{t}</option>
@@ -287,8 +279,8 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                     setCreateError("JO Number is required.");
                     return;
                   }
-                  if (!form.position.trim()) {
-                    setCreateError("Position is required.");
+                  if (!form.trade.trim()) {
+                    setCreateError("Trade / Position is required.");
                     return;
                   }
                   if (!form.jo_validity_date) {
