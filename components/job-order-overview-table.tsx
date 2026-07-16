@@ -36,12 +36,20 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [trades, setTrades] = useState<string[]>([]);
+  const [programs, setPrograms] = useState<{ id: string; name: string; country: string }[]>([]);
 
   useEffect(() => {
     fetch("/api/public/trades")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setTrades(data.map((d) => d.name));
+      })
+      .catch((err) => console.error(err));
+
+    fetch("/api/staff/programs")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setPrograms(data);
       })
       .catch((err) => console.error(err));
   }, []);
@@ -215,11 +223,32 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="form-field">
                   <label className="form-label">Country</label>
-                  <input value={form.country} onChange={(e) => setForm((prev) => ({ ...prev, country: e.target.value }))} className="form-input" placeholder="Japan" />
+                  <input 
+                    value={form.country} 
+                    readOnly 
+                    className="form-input bg-gray-50 text-ink-muted cursor-not-allowed" 
+                    placeholder="Auto-filled..." 
+                  />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Program</label>
-                  <input value={form.program_name} onChange={(e) => setForm((prev) => ({ ...prev, program_name: e.target.value }))} className="form-input" placeholder="TITP" />
+                  <select
+                    value={form.program_name}
+                    onChange={(e) => {
+                      const prog = programs.find((p) => p.name === e.target.value);
+                      setForm((prev) => ({
+                        ...prev,
+                        program_name: e.target.value,
+                        country: prog ? prog.country : "",
+                      }));
+                    }}
+                    className="form-select"
+                  >
+                    <option value="">Select a program...</option>
+                    {programs.map((p) => (
+                      <option key={p.id} value={p.name}>{p.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="form-field">
