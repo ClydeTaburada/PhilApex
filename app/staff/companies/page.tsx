@@ -7,11 +7,25 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default async function CompaniesPage() {
+export default async function CompaniesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const context = await requireStaffContext();
   if (context.staff.role === "front_desk") return notFound();
 
-  const companies = await getCompanyList();
+  const sp = await searchParams;
+  const programFilter = typeof sp?.program === 'string' ? sp.program : undefined;
+  const countryFilter = typeof sp?.country === 'string' ? sp.country : undefined;
+
+  let companies = await getCompanyList();
+  if (programFilter) {
+    companies = companies.filter(c => c.program_name === programFilter);
+  }
+  if (countryFilter) {
+    companies = companies.filter(c => c.country === countryFilter);
+  }
 
   return (
     <StaffShell

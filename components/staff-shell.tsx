@@ -1,10 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Users, ClipboardList, Send, Building2, FileCheck2, Factory, Search } from "lucide-react";
+import { LayoutDashboard, Users, ClipboardList, Send, Building2, FileCheck2, Factory, Search } from "lucide-react";
 import { StaffLogoutButton } from "@/components/staff-logout-button";
 
 type Props = {
-  active: "dashboard" | "job-orders" | "applicant-detail" | "partners" | "accreditations" | "companies" | "deployments";
+  active: "dashboard" | "applicants" | "job-orders" | "applicant-detail" | "partners" | "accreditations" | "companies" | "deployments";
   staffName: string;
   staffRole: string;
   title: string;
@@ -21,8 +21,14 @@ const ROLE_LABELS: Record<string, string> = {
 const NAV_ITEMS = [
   {
     key: "dashboard",
-    label: "Applicants",
+    label: "Dashboard",
     href: "/staff/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    key: "applicants",
+    label: "Applicants",
+    href: "/staff/applicants",
     icon: Users,
   },
   {

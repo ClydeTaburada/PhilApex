@@ -6,11 +6,21 @@ import { JobOrderOverviewTable } from "@/components/job-order-overview-table";
 
 export const dynamic = "force-dynamic";
 
-export default async function JobOrdersPage() {
+export default async function JobOrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const context = await requireStaffContext();
   if (context.staff.role === "front_desk") return notFound();
 
-  const jobOrders = await getAllJobOrdersV2();
+  const sp = await searchParams;
+  const statusFilter = typeof sp?.status === 'string' ? sp.status : undefined;
+
+  let jobOrders = await getAllJobOrdersV2();
+  if (statusFilter) {
+    jobOrders = jobOrders.filter(jo => jo.status === statusFilter);
+  }
 
   const jobOrderDetails = await Promise.all(
     jobOrders.map(async (jobOrder) => {
