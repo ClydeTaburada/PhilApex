@@ -39,7 +39,7 @@ export default function ApplicantLayout({
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-md mx-auto relative z-10 bg-white shadow-2xl border-x" style={{ borderColor: "rgba(255,255,255,0.1)", marginTop: "70px", minHeight: "calc(100vh - 70px)" }}>
+      <main className="flex-1 w-full max-w-md mx-auto relative z-10 flex flex-col" style={{ marginTop: "70px", minHeight: "calc(100vh - 70px)" }}>
         {children}
       </main>
     </div>

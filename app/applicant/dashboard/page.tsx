@@ -83,44 +83,44 @@ export default async function ApplicantDashboardPage() {
   const submittedDocs = (docs || []).filter((d: any) => d.status !== "missing");
 
   return (
-    <div className="flex-1 flex flex-col bg-white">
+    <div className="flex-1 flex flex-col">
       
-      <div className="bg-white px-6 py-4 border-b flex justify-between items-center sticky top-0 z-50 shadow-sm" style={{ borderColor: "var(--border)" }}>
+      <div className="px-6 py-4 flex justify-between items-center sticky top-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20 shadow-sm mt-4 mx-4 rounded-2xl">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--crimson)" }}>Applicant Portal</p>
-          <p className="text-sm font-bold truncate max-w-[200px]" style={{ color: "var(--navy)" }}>{applicant.full_name}</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-white/80">Applicant Portal</p>
+          <p className="text-sm font-bold truncate max-w-[200px] text-white">{applicant.full_name}</p>
         </div>
         <LogoutButton />
       </div>
 
-      <div className="p-6 space-y-6 flex-1 overflow-y-auto pb-20">
+      <div className="p-4 space-y-4 flex-1 overflow-y-auto pb-20">
         
         {deployment && (
-          <div className="bg-white p-6 rounded-3xl border shadow-sm border-l-4" style={{ borderColor: "var(--border)", borderLeftColor: "var(--navy)" }}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "var(--navy)" }}>Employer Match</p>
-            <div className="space-y-4">
+          <div className="bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-xl border-l-4" style={{ borderColor: "rgba(255,255,255,0.5)", borderLeftColor: "var(--crimson)" }}>
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--navy)" }}>Employer Match</p>
+            <div className="space-y-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Company</p>
                 <p className="text-base font-bold" style={{ color: "var(--ink)" }}>{deployment.batch?.job_order?.partner?.name || "—"}</p>
-                <p className="text-xs font-bold uppercase mt-1" style={{ color: "var(--crimson)" }}>{deployment.batch?.job_order?.country}</p>
+                <p className="text-xs font-bold uppercase" style={{ color: "var(--crimson)" }}>{deployment.batch?.job_order?.country}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                   <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Visa Status</p>
                   <p className={`text-sm font-bold uppercase mt-1 ${deployment.visa_status === 'approved' ? 'text-green-600' : deployment.visa_status === 'denied' ? 'text-red-600' : 'text-amber-600'}`}>
                     {deployment.visa_status || 'PENDING'}
                   </p>
                 </div>
-                <div>
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
                   <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Flight Info</p>
                   {(deployment.flight_airline || deployment.flight_number) ? (
                     <>
-                      <p className="text-sm font-bold mt-1" style={{ color: "var(--ink)" }}>{deployment.flight_airline} {deployment.flight_number}</p>
+                      <p className="text-xs font-bold mt-1" style={{ color: "var(--ink)" }}>{deployment.flight_airline} {deployment.flight_number}</p>
                       {deployment.departure_datetime && (
-                        <p className="text-[10px] mt-0.5" style={{ color: "var(--ink-muted)" }}>{new Date(deployment.departure_datetime).toLocaleString()}</p>
+                        <p className="text-[10px] mt-0.5" style={{ color: "var(--ink-muted)" }}>{new Date(deployment.departure_datetime).toLocaleDateString()}</p>
                       )}
                     </>
-                  ) : <p className="text-sm font-medium mt-1" style={{ color: "var(--ink-muted)" }}>—</p>}
+                  ) : <p className="text-xs font-medium mt-1" style={{ color: "var(--ink-muted)" }}>—</p>}
                 </div>
               </div>
             </div>
@@ -128,13 +128,13 @@ export default async function ApplicantDashboardPage() {
         )}
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white p-5 rounded-3xl border shadow-sm" style={{ borderColor: "var(--border)" }}>
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--navy)" }}>Medical</p>
+          <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl flex flex-col justify-center border border-white/50">
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--navy)" }}>Medical Status</p>
             <p className={`text-sm font-black uppercase ${applicant.medical_status === 'fit' ? 'text-green-600' : applicant.medical_status === 'unfit' ? 'text-red-600' : 'text-amber-600'}`}>
               {applicant.medical_status || "PENDING"}
             </p>
           </div>
-          <div className="bg-white p-5 rounded-3xl border shadow-sm" style={{ borderColor: "var(--border)" }}>
+          <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl flex flex-col justify-center border border-white/50">
             <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--navy)" }}>PDOS Training</p>
             <p className={`text-sm font-black uppercase ${applicant.pdos_completed ? 'text-green-600' : 'text-amber-600'}`}>
               {applicant.pdos_completed ? "Completed" : "Pending"}
@@ -142,21 +142,21 @@ export default async function ApplicantDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border shadow-sm" style={{ borderColor: "var(--border)" }}>
+        <div className="bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-xl border border-white/50">
           <div className="flex items-center justify-between mb-4">
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--navy)" }}>Required Actions</p>
             <span className="bg-red-100 text-red-600 text-[10px] font-black px-2 py-1 rounded-full">{missingDocs.length} Missing</span>
           </div>
           
           {missingDocs.length === 0 ? (
-            <div className="text-center py-6">
-              <p className="text-green-600 text-2xl mb-2">✓</p>
-              <p className="text-sm font-bold text-green-600">All documents submitted!</p>
+            <div className="text-center py-4 bg-green-50/50 rounded-xl">
+              <p className="text-green-600 text-xl mb-1">✓</p>
+              <p className="text-xs font-bold text-green-700">All documents submitted!</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {missingDocs.map((doc: any) => (
-                <div key={doc.id} className="bg-slate-50 border p-4 rounded-2xl" style={{ borderColor: "var(--border)" }}>
+                <div key={doc.id} className="bg-white/80 border border-slate-100 p-3 rounded-xl shadow-sm">
                   <p className="text-sm font-bold mb-1" style={{ color: "var(--ink)" }}>{doc.document_requirement.doc_name}</p>
                   {doc.document_requirement.requires_file_upload ? (
                     <DocumentUploader documentId={doc.id} docName={doc.document_requirement.doc_name} />
@@ -170,7 +170,7 @@ export default async function ApplicantDashboardPage() {
         </div>
 
         {/* Status Tracker */}
-        <div className="bg-white p-6 rounded-3xl border shadow-sm" style={{ borderColor: "var(--border)" }}>
+        <div className="bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-xl border border-white/50">
           <p className="text-xs font-bold uppercase tracking-widest mb-6" style={{ color: "var(--navy)" }}>Application Progress</p>
           <div className="flex flex-col gap-3">
             {stages.map((stage, idx) => {

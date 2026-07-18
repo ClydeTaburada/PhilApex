@@ -34,12 +34,12 @@ export default function ApplicantLoginPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center p-8 bg-white">
-      
-      <div className="text-center mb-10 animate-fade-in-down mt-8">
-        <h1 className="text-2xl font-black tracking-tight" style={{ color: "var(--navy)" }}>Applicant Portal</h1>
-        <p className="text-sm mt-2 font-medium" style={{ color: "var(--ink-muted)" }}>Track your application instantly.</p>
-      </div>
+    <div className="flex-1 flex flex-col justify-center p-6">
+      <div className="bg-white p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
+        <div className="text-center mb-10 mt-4 relative z-10">
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: "var(--navy)" }}>Applicant Portal</h1>
+          <p className="text-sm mt-2 font-medium tracking-wide" style={{ color: "var(--ink-muted)" }}>Track your application instantly.</p>
+        </div>
 
       <form onSubmit={handleLogin} className="space-y-6">
         {error && <div className="p-4 bg-red-50 text-red-600 text-sm rounded-xl text-center font-medium border border-red-100">{error}</div>}
@@ -79,11 +79,12 @@ export default function ApplicantLoginPage() {
         </button>
       </form>
 
-      <div className="mt-12 text-center animate-fade-in-up">
-        <p className="text-xs font-medium" style={{ color: "var(--ink-muted)" }}>
-          Lost your Reference Number?<br/>
-          <span style={{ color: "var(--ink)" }}>Please contact our processing team.</span>
-        </p>
+        <div className="mt-8 text-center relative z-10 pb-2">
+          <p className="text-xs font-medium" style={{ color: "var(--ink-muted)" }}>
+            Lost your Reference Number?<br/>
+            <span style={{ color: "var(--ink)" }}>Please contact our processing team.</span>
+          </p>
+        </div>
       </div>
     </div>
   );
