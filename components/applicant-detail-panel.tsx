@@ -8,6 +8,7 @@ import type { JobOrderRow } from "@/lib/data/job-orders";
 type Props = {
   applicant: ApplicantDetail;
   documents: ApplicantDocumentDetail[];
+  deployment?: any;
   jobOrders?: JobOrderRow[];
   staffRole: StaffRole;
 };
@@ -96,12 +97,14 @@ function SaveButton({
   );
 }
 
-export function ApplicantDetailPanel({ applicant, documents, jobOrders, staffRole }: Props) {
+export function ApplicantDetailPanel({ applicant, documents, deployment, jobOrders, staffRole }: Props) {
   // Each control gets its own save state so they don't interfere (BUG-4)
   const pipelineSave = useSaveState();
   const jobOrderSave = useSaveState();
   const dmwSave = useSaveState();
   const peosSave = useSaveState();
+  const medicalSave = useSaveState();
+  const pdosSave = useSaveState();
 
   // Separate state for file-view errors (BUG-3)
   const [viewFileError, setViewFileError] = useState<string | null>(null);
@@ -110,6 +113,8 @@ export function ApplicantDetailPanel({ applicant, documents, jobOrders, staffRol
   const [pipelineStage, setPipelineStage] = useState(applicant.current_pipeline_stage);
   const [dmwNumber, setDmwNumber] = useState(applicant.dmw_registration_number ?? "");
   const [peosStatus, setPeosStatus] = useState(applicant.peos_certificate_status);
+  const [medicalStatus, setMedicalStatus] = useState(applicant.medical_status || "pending");
+  const [pdosCompleted, setPdosCompleted] = useState(applicant.pdos_completed || false);
   const [moduleChecks, setModuleChecks] = useState<boolean[]>(
     Array.from({ length: 8 }, (_, i) => i < applicant.peos_modules_completed),
   );
@@ -193,7 +198,10 @@ export function ApplicantDetailPanel({ applicant, documents, jobOrders, staffRol
     { label: "Email",  value: applicant.email ?? "—" },
     { label: "Address",  value: applicant.home_address ?? "—" },
     { label: "Education",  value: applicant.educational_attainment ?? "—" },
+    { label: "Occupation Applied",  value: applicant.occupation_applied ?? "—" },
+    { label: "Has Passport?",  value: applicant.has_passport ? "Yes" : "No" },
     { label: "Source",  value: applicant.source?.replace(/_/g, " ") },
+    { label: "Applied On",  value: new Date(applicant.created_at).toLocaleDateString() },
   ];
 
   return (
@@ -246,6 +254,50 @@ export function ApplicantDetailPanel({ applicant, documents, jobOrders, staffRol
           </div>
         </div>
       </div>
+
+      {/* ── Active Deployment ───────────────────────────── */}
+      {deployment && (
+        <div className="card rounded-xl p-5 border-l-4" style={{ borderLeftColor: "var(--teal)" }}>
+          <p className="section-title mb-4">Active Deployment</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Matched Employer</p>
+              <p className="text-sm font-medium mt-1">{deployment.batch?.job_order?.partner?.name || "—"}</p>
+              <p className="text-[10px] text-teal-600 font-bold uppercase mt-0.5">{deployment.batch?.job_order?.country}</p>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Program & Trade</p>
+              <p className="text-sm font-medium mt-1">{deployment.batch?.job_order?.trade_name || "—"}</p>
+              <p className="text-[10px] font-medium mt-0.5" style={{ color: "var(--ink-muted)" }}>{deployment.batch?.job_order?.program_name || "—"}</p>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Visa Status</p>
+              <p className={`text-sm font-bold mt-1 uppercase ${deployment.visa_status === 'approved' ? 'text-green-600' : deployment.visa_status === 'denied' ? 'text-red-600' : 'text-amber-600'}`}>
+                {deployment.visa_status || 'PENDING'}
+              </p>
+              {deployment.oec_number && <p className="text-[10px] font-mono mt-0.5" style={{ color: "var(--ink-muted)" }}>OEC: {deployment.oec_number}</p>}
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Flight Schedule</p>
+              {(deployment.flight_airline || deployment.flight_number) ? (
+                <>
+                  <p className="text-sm font-medium mt-1">{deployment.flight_airline} {deployment.flight_number}</p>
+                  {deployment.departure_datetime && (
+                    <p className="text-[10px] mt-0.5" style={{ color: "var(--ink-muted)" }}>{new Date(deployment.departure_datetime).toLocaleString()}</p>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm font-medium mt-1" style={{ color: "var(--ink-muted)" }}>—</p>
+              )}
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t flex justify-end" style={{ borderColor: "var(--border)" }}>
+            <a href={`/staff/job-orders-v2/${deployment.batch?.job_order?.id}/batches`} className="btn btn-sm btn-ghost text-teal-600">
+              Manage in Batches →
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* ── Processing Controls ───────────────────────── */}
       <div className="card rounded-xl p-5">
@@ -385,6 +437,59 @@ export function ApplicantDetailPanel({ applicant, documents, jobOrders, staffRol
             />
             {peosSave.errorMsg && (
               <span className="form-error" role="alert">{peosSave.errorMsg}</span>
+            )}
+          </div>
+
+          {/* Medical Status */}
+          <div className="form-field">
+            <label className="form-label" htmlFor="ctrl-medical">Medical Status</label>
+            <select
+              id="ctrl-medical"
+              className="form-select"
+              value={medicalStatus}
+              onChange={(e) => setMedicalStatus(e.target.value as any)}
+            >
+              <option value="pending">Pending</option>
+              <option value="fit">Fit to Work</option>
+              <option value="unfit">Unfit</option>
+            </select>
+            <SaveButton
+              state={medicalSave.state}
+              label="Save Medical"
+              onClick={() =>
+                void medicalSave.save(`/api/staff/applicants/${applicant.id}/pipeline`, {
+                  medical_status: medicalStatus,
+                })
+              }
+            />
+            {medicalSave.errorMsg && (
+              <span className="form-error" role="alert">{medicalSave.errorMsg}</span>
+            )}
+          </div>
+
+          {/* PDOS Status */}
+          <div className="form-field">
+            <label className="form-label" htmlFor="ctrl-pdos">PDOS Training</label>
+            <select
+              id="ctrl-pdos"
+              className="form-select"
+              value={pdosCompleted ? "true" : "false"}
+              onChange={(e) => setPdosCompleted(e.target.value === "true")}
+            >
+              <option value="false">Pending</option>
+              <option value="true">Completed</option>
+            </select>
+            <SaveButton
+              state={pdosSave.state}
+              label="Save PDOS"
+              onClick={() =>
+                void pdosSave.save(`/api/staff/applicants/${applicant.id}/pipeline`, {
+                  pdos_completed: pdosCompleted,
+                })
+              }
+            />
+            {pdosSave.errorMsg && (
+              <span className="form-error" role="alert">{pdosSave.errorMsg}</span>
             )}
           </div>
         </div>

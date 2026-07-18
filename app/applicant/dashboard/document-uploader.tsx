@@ -56,15 +56,15 @@ export function DocumentUploader({ documentId, docName }: { documentId: string, 
   };
 
   return (
-    <div className="bg-red-50 p-3 rounded-xl border border-red-100 flex flex-col gap-2">
-      <div className="flex justify-between items-center">
-        <p className="text-sm font-bold text-red-900">{docName}</p>
+    <div className="bg-slate-900/50 p-4 rounded-2xl border border-red-500/10 flex flex-col gap-3">
+      <div className="flex justify-between items-center gap-4">
+        <p className="text-sm font-bold text-slate-200">{docName}</p>
         <button 
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm disabled:opacity-50"
+          className="bg-red-500 hover:bg-red-400 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-[0_0_15px_rgba(239,68,68,0.3)] disabled:opacity-50 transition-all active:scale-95 whitespace-nowrap"
         >
-          {uploading ? "Uploading..." : "Upload"}
+          {uploading ? "Uploading..." : "Upload File"}
         </button>
       </div>
       <input 
@@ -74,7 +74,7 @@ export function DocumentUploader({ documentId, docName }: { documentId: string, 
         accept="image/*,.pdf"
         onChange={handleFileChange}
       />
-      {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
+      {error && <p className="text-[10px] text-red-400 font-bold tracking-wide">{error}</p>}
     </div>
   );
 }

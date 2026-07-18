@@ -67,7 +67,9 @@ export const updateDocumentStatusSchema = z.object({
 });
 
 export const updateApplicantPipelineSchema = z.object({
-  current_pipeline_stage: pipelineStageSchema,
+  current_pipeline_stage: pipelineStageSchema.optional(),
+  medical_status: z.enum(["pending", "fit", "unfit"]).optional(),
+  pdos_completed: z.boolean().optional(),
 });
 
 export const assignJobOrderSchema = z.object({
@@ -222,6 +224,11 @@ export const updateDeploymentSchema = z.object({
   deployment_end_date: z.string().date().nullable().optional(),
   document_status: z.enum(["on_process", "dispatched"]).optional(),
   dispatched_date: z.string().date().nullable().optional(),
+  visa_status: z.enum(["pending", "approved", "denied"]).optional(),
+  oec_number: z.string().trim().max(50).nullable().optional(),
+  flight_airline: z.string().trim().max(100).nullable().optional(),
+  flight_number: z.string().trim().max(50).nullable().optional(),
+  departure_datetime: z.string().datetime({ offset: true }).nullable().optional().or(z.string().nullable().optional()),
 });
 
 export const deploymentSearchSchema = z.object({

@@ -28,10 +28,10 @@ BEGIN
         SELECT d.doc_name, count(ad.id) as count, d.id as doc_id
         FROM public.applicant_documents ad
         JOIN public.applicants a ON a.id = ad.applicant_id
-        JOIN public.document_requirements d ON d.id = ad.document_id
+        JOIN public.document_requirements d ON d.id = ad.document_requirement_id
         WHERE ad.status != 'submitted' 
           AND a.current_pipeline_stage IN ('registered', 'documents_complete')
-          AND d.is_mandatory = true
+          AND d.is_conditional = false
         GROUP BY d.id, d.doc_name
         ORDER BY count DESC
         LIMIT 1

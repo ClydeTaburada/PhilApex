@@ -18,6 +18,11 @@ export type DeploymentRow = {
   deployment_end_date: string | null;
   document_status: "on_process" | "dispatched";
   dispatched_date: string | null;
+  visa_status: "pending" | "approved" | "denied";
+  oec_number: string | null;
+  flight_airline: string | null;
+  flight_number: string | null;
+  departure_datetime: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -65,7 +70,7 @@ export async function getDeploymentsByBatch(batchId: string): Promise<Deployment
     .from("deployments")
     .select(`
       id, applicant_id, batch_id, hired_date, entry_date, deployment_end_date,
-      document_status, dispatched_date, created_at, updated_at,
+      document_status, dispatched_date, visa_status, oec_number, flight_airline, flight_number, departure_datetime, created_at, updated_at,
       applicants(full_name)
     `)
     .eq("batch_id", batchId)

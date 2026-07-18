@@ -77,9 +77,12 @@ export default async function DashboardOverviewPage() {
       title="Overview Dashboard"
       subtitle="High-level metrics across applicant intake and active deployments."
     >
-      {aggError?.message?.includes("does not exist") && (
+      {aggError && (
         <div className="alert alert-error mb-6">
-          <strong>Database setup required:</strong> Please run the `20260717_dashboard_rpc.sql` migration in your Supabase SQL Editor.
+          <strong>Database RPC Error:</strong> {aggError.message}
+          {aggError.message.includes("does not exist") && (
+            <p className="mt-2 text-sm">Please run the `20260717_dashboard_rpc.sql` migration in your Supabase SQL Editor. If you already ran it, try running `NOTIFY pgrst, 'reload schema';` to refresh the cache.</p>
+          )}
         </div>
       )}
 

@@ -30,26 +30,36 @@ export async function PATCH(
       return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
     }
 
-    const oldValue = currentApplicant.current_pipeline_stage;
-    const newValue = parsed.data.current_pipeline_stage;
+    // Construct the update object dynamically based on what was provided
+    const updatePayload: Record<string, any> = {};
+    if (parsed.data.current_pipeline_stage !== undefined) updatePayload.current_pipeline_stage = parsed.data.current_pipeline_stage;
+    if (parsed.data.medical_status !== undefined) updatePayload.medical_status = parsed.data.medical_status;
+    if (parsed.data.pdos_completed !== undefined) updatePayload.pdos_completed = parsed.data.pdos_completed;
 
-    const { error: updateError } = await supabase
+    if (Object.keys(updatePayload).length === 0) {
+      return NextResponse.json({ ok: true });
+    }
+
+    const { error: updateError } = await (supabase as any)
       .from("applicants")
-      .update({ current_pipeline_stage: newValue })
+      .update(updatePayload)
       .eq("id", id);
 
     if (updateError) {
-      return NextResponse.json({ error: "Unable to update pipeline stage" }, { status: 500 });
+      return NextResponse.json({ error: "Unable to update applicant" }, { status: 500 });
     }
 
-    await writeAuditLog({
-      staff_id: staff.id,
-      applicant_id: id,
-      action_type: "applicant_update",
-      field_changed: "current_pipeline_stage",
-      old_value: oldValue,
-      new_value: newValue,
-    });
+    // Write audit log for the most critical field (pipeline stage) if it changed
+    if (parsed.data.current_pipeline_stage && parsed.data.current_pipeline_stage !== currentApplicant.current_pipeline_stage) {
+      await writeAuditLog({
+        staff_id: staff.id,
+        applicant_id: id,
+        action_type: "applicant_update",
+        field_changed: "current_pipeline_stage",
+        old_value: currentApplicant.current_pipeline_stage,
+        new_value: parsed.data.current_pipeline_stage,
+      });
+    }
 
     const supabaseAdmin = getSupabaseAdminClient();
     const { data: aj } = await supabaseAdmin

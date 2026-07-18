@@ -34,36 +34,38 @@ export default function ApplicantLoginPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center p-8 bg-gradient-to-b from-blue-50 to-white">
-      <div className="text-center mb-10">
-        <div className="flex justify-center mb-6">
-          <Image src="/logo.png" alt="Phil-Apex Logo" width={80} height={80} className="rounded-full shadow-md" />
+    <div className="flex-1 flex flex-col justify-center p-8">
+      
+      <div className="text-center mb-12 animate-fade-in-down">
+        <div className="flex justify-center mb-8 relative">
+          <div className="absolute inset-0 bg-indigo-500 blur-2xl opacity-20 rounded-full"></div>
+          <Image src="/logo.png" alt="Phil-Apex Logo" width={90} height={90} className="rounded-full shadow-[0_0_40px_rgba(99,102,241,0.4)] relative z-10 border border-slate-700/50" />
         </div>
-        <h1 className="text-2xl font-black text-navy-900 tracking-tight">Applicant Portal</h1>
-        <p className="text-sm text-ink-muted mt-2">Track your application status and upload missing documents.</p>
+        <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300 tracking-tight">Applicant Portal</h1>
+        <p className="text-sm text-slate-400 mt-3 font-medium">Track your application instantly.</p>
       </div>
 
-      <form onSubmit={handleLogin} className="space-y-5 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        {error && <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center font-medium">{error}</div>}
+      <form onSubmit={handleLogin} className="space-y-6 bg-slate-800/40 backdrop-blur-md p-8 rounded-3xl shadow-2xl border border-slate-700/50 animate-fade-in-up">
+        {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl text-center font-medium backdrop-blur-sm">{error}</div>}
         
-        <div>
-          <label className="block text-xs font-bold text-ink-muted uppercase mb-1">Reference Number</label>
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Reference Number</label>
           <input 
             type="text" 
             required 
             placeholder="e.g. 2026-0001-A"
-            className="w-full input text-lg py-3 text-center tracking-widest font-mono"
+            className="w-full bg-slate-900/60 border border-slate-700/50 text-slate-100 text-lg py-4 px-5 rounded-2xl text-center tracking-widest font-mono placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all shadow-inner"
             value={ref}
             onChange={e => setRef(e.target.value)}
           />
         </div>
 
-        <div>
-          <label className="block text-xs font-bold text-ink-muted uppercase mb-1">Date of Birth</label>
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Date of Birth</label>
           <input 
             type="date" 
             required 
-            className="w-full input text-lg py-3 text-center text-ink-muted"
+            className="w-full bg-slate-900/60 border border-slate-700/50 text-slate-100 text-lg py-4 px-5 rounded-2xl text-center font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all shadow-inner [color-scheme:dark]"
             value={dob}
             onChange={e => setDob(e.target.value)}
           />
@@ -72,16 +74,16 @@ export default function ApplicantLoginPage() {
         <button 
           type="submit" 
           disabled={loading}
-          className="w-full btn btn-primary text-lg py-4 rounded-xl shadow-lg shadow-blue-500/30 mt-4 font-bold"
+          className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white text-lg py-4 rounded-2xl shadow-[0_0_20px_rgba(99,102,241,0.3)] mt-6 font-bold transition-all disabled:opacity-50 active:scale-[0.98]"
         >
-          {loading ? "Verifying..." : "Access My Dashboard"}
+          {loading ? "Verifying Identity..." : "Secure Login"}
         </button>
       </form>
 
-      <div className="mt-10 text-center">
-        <p className="text-xs text-ink-faint">
+      <div className="mt-12 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <p className="text-xs text-slate-500 font-medium">
           Lost your Reference Number?<br/>
-          Please contact the Phil-Apex processing team.
+          <span className="text-slate-400">Please contact the Phil-Apex processing team.</span>
         </p>
       </div>
     </div>

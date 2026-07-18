@@ -23,6 +23,8 @@ export type ApplicantDetail = {
     | "peos_certified"
     | "matched"
     | "deployed";
+  medical_status: "pending" | "fit" | "unfit";
+  pdos_completed: boolean;
   assigned_job_order_id: string | null;
   created_at: string;
 };
@@ -43,12 +45,13 @@ export type ApplicantDocumentDetail = {
 export async function fetchApplicantDetail(applicantId: string): Promise<{
   applicant: ApplicantDetail;
   documents: ApplicantDocumentDetail[];
+  deployment?: any;
 }> {
   const supabaseAdmin = getSupabaseAdminClient();
   const { data: applicant, error: applicantError } = await supabaseAdmin
     .from("applicants")
     .select(
-      "id, reference_number, full_name, date_of_birth, gender, home_address, cellphone_number, email, educational_attainment, occupation_applied, has_passport, source, dmw_registration_number, peos_modules_completed, peos_certificate_status, current_pipeline_stage, created_at",
+      "id, reference_number, full_name, date_of_birth, gender, home_address, cellphone_number, email, educational_attainment, occupation_applied, has_passport, source, dmw_registration_number, peos_modules_completed, peos_certificate_status, current_pipeline_stage, medical_status, pdos_completed, created_at",
     )
     .eq("id", applicantId)
     .maybeSingle();
@@ -109,6 +112,27 @@ export async function fetchApplicantDetail(applicantId: string): Promise<{
     };
   });
 
+  let deployment = null;
+  try {
+    const { data: dep } = await (supabaseAdmin as any)
+      .from("deployments")
+      .select(`
+        id, hired_date, visa_status, oec_number, flight_airline, flight_number, departure_datetime, document_status,
+        batch:batches(
+          batch_label,
+          job_order:job_orders(
+            id, program_name, trade_name, country,
+            partner:foreign_partners!principal_partner_id(name)
+          )
+        )
+      `)
+      .eq("applicant_id", applicantId)
+      .maybeSingle();
+    deployment = dep;
+  } catch (e) {
+    // ignore
+  }
+
   const { data: aj } = await supabaseAdmin
     .from("applicant_job_orders")
     .select("job_order_id")
@@ -121,5 +145,6 @@ export async function fetchApplicantDetail(applicantId: string): Promise<{
       assigned_job_order_id: (aj as any)?.job_order_id ?? null,
     } as ApplicantDetail,
     documents: normalizedDocuments,
+    deployment,
   };
 }
