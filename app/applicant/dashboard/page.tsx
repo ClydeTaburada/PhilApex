@@ -85,16 +85,10 @@ export default async function ApplicantDashboardPage() {
   return (
     <div className="flex-1 flex flex-col bg-white">
       
-      {/* Header */}
       <div className="bg-white px-6 py-4 border-b flex justify-between items-center sticky top-0 z-50 shadow-sm" style={{ borderColor: "var(--border)" }}>
-        <div className="flex items-center gap-4">
-          <div className="flex justify-center">
-            <Image src="/LOGO.jpg" alt="Logo" width={90} height={36} className="shadow-sm border border-slate-100 p-1 rounded-lg" />
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--crimson)" }}>Applicant</p>
-            <p className="text-sm font-bold truncate max-w-[150px]" style={{ color: "var(--navy)" }}>{applicant.full_name}</p>
-          </div>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--crimson)" }}>Applicant Portal</p>
+          <p className="text-sm font-bold truncate max-w-[200px]" style={{ color: "var(--navy)" }}>{applicant.full_name}</p>
         </div>
         <LogoutButton />
       </div>

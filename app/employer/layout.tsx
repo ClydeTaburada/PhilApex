@@ -5,20 +5,41 @@ export const metadata: Metadata = {
   description: "Manage and monitor your deployments.",
 };
 
+import Image from "next/image";
+import Link from "next/link";
+
 export default function EmployerLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col text-slate-100 font-sans selection:bg-teal-500/30">
-      {/* Subtle background glow for enterprise feel */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 right-[10%] w-[500px] h-[500px] bg-teal-900/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-slate-800/30 rounded-full blur-[120px]" />
-      </div>
+    <div className="landing-page" style={{ background: "var(--surface)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       
-      <main className="flex-1 flex flex-col relative z-10 w-full">
+      {/* ═══════════ HEADER (MATCHES LANDING PAGE) ═══════════ */}
+      <header className="landing-header">
+        <div className="landing-header-inner">
+          <Link href="/" className="landing-logo-link">
+            <Image
+              src="/LOGO.jpg"
+              alt="Phil-Apex Placement Agency Inc."
+              width={160}
+              height={64}
+              className="landing-logo-img"
+              priority
+            />
+          </Link>
+          <nav className="landing-nav">
+            <Link href="/#about" className="landing-nav-link">About</Link>
+            <Link href="/#programs" className="landing-nav-link">Programs</Link>
+            <Link href="/#process" className="landing-nav-link">Process</Link>
+            <Link href="/#contact" className="landing-nav-link">Contact</Link>
+            <Link href="/staff/login" className="landing-nav-link" style={{ color: "var(--ink-faint)" }}>Staff</Link>
+          </nav>
+        </div>
+      </header>
+      
+      <main className="flex-1 flex flex-col relative z-10 w-full" style={{ marginTop: "70px", minHeight: "calc(100vh - 70px)" }}>
         {children}
       </main>
     </div>

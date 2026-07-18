@@ -36,11 +36,8 @@ export default function ApplicantLoginPage() {
   return (
     <div className="flex-1 flex flex-col justify-center p-8 bg-white">
       
-      <div className="text-center mb-12 animate-fade-in-down">
-        <div className="flex justify-center mb-6">
-          <Image src="/LOGO.jpg" alt="Phil-Apex Logo" width={140} height={56} className="shadow-sm border border-slate-100 p-2 rounded-xl" />
-        </div>
-        <h1 className="text-2xl font-black tracking-tight mt-6" style={{ color: "var(--navy)" }}>Applicant Portal</h1>
+      <div className="text-center mb-10 animate-fade-in-down mt-8">
+        <h1 className="text-2xl font-black tracking-tight" style={{ color: "var(--navy)" }}>Applicant Portal</h1>
         <p className="text-sm mt-2 font-medium" style={{ color: "var(--ink-muted)" }}>Track your application instantly.</p>
       </div>
 

@@ -5,22 +5,43 @@ export const metadata: Metadata = {
   description: "Track your application status and upload missing documents.",
 };
 
+import Image from "next/image";
+import Link from "next/link";
+
 export default function ApplicantLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex justify-center font-sans selection:bg-crimson/30" style={{ background: "var(--surface)", color: "var(--ink)" }}>
-      <div className="w-full max-w-md min-h-screen flex flex-col relative overflow-hidden bg-white shadow-xl border-x" style={{ borderColor: "var(--border)" }}>
-        
-        {/* Subtle Brand Accents */}
-        <div className="absolute top-0 w-full h-1" style={{ background: "var(--crimson)" }} />
-        
-        <main className="flex-1 flex flex-col relative z-10 bg-white">
-          {children}
-        </main>
-      </div>
+    <div className="landing-page" style={{ background: "var(--surface)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      
+      {/* ═══════════ HEADER (MATCHES LANDING PAGE) ═══════════ */}
+      <header className="landing-header">
+        <div className="landing-header-inner">
+          <Link href="/" className="landing-logo-link">
+            <Image
+              src="/LOGO.jpg"
+              alt="Phil-Apex Placement Agency Inc."
+              width={160}
+              height={64}
+              className="landing-logo-img"
+              priority
+            />
+          </Link>
+          <nav className="landing-nav">
+            <Link href="/#about" className="landing-nav-link">About</Link>
+            <Link href="/#programs" className="landing-nav-link">Programs</Link>
+            <Link href="/#process" className="landing-nav-link">Process</Link>
+            <Link href="/#contact" className="landing-nav-link">Contact</Link>
+            <Link href="/staff/login" className="landing-nav-link" style={{ color: "var(--ink-faint)" }}>Staff</Link>
+          </nav>
+        </div>
+      </header>
+
+      <main className="flex-1 w-full max-w-md mx-auto relative z-10 bg-white shadow-xl border-x" style={{ borderColor: "var(--border)", marginTop: "70px", minHeight: "calc(100vh - 70px)" }}>
+        {children}
+      </main>
     </div>
   );
 }
