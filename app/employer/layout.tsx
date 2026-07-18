@@ -14,7 +14,7 @@ export default function EmployerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="landing-page" style={{ background: "var(--surface)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="landing-page" style={{ background: "linear-gradient(135deg, var(--navy) 0%, #1a2d6d 50%, var(--crimson) 100%)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       
       {/* ═══════════ HEADER (MATCHES LANDING PAGE) ═══════════ */}
       <header className="landing-header">

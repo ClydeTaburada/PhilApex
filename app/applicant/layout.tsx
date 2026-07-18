@@ -14,7 +14,7 @@ export default function ApplicantLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="landing-page" style={{ background: "var(--surface)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="landing-page" style={{ background: "linear-gradient(135deg, var(--navy) 0%, #1a2d6d 50%, var(--crimson) 100%)", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       
       {/* ═══════════ HEADER (MATCHES LANDING PAGE) ═══════════ */}
       <header className="landing-header">
@@ -39,7 +39,7 @@ export default function ApplicantLayout({
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-md mx-auto relative z-10 bg-white shadow-xl border-x" style={{ borderColor: "var(--border)", marginTop: "70px", minHeight: "calc(100vh - 70px)" }}>
+      <main className="flex-1 w-full max-w-md mx-auto relative z-10 bg-white shadow-2xl border-x" style={{ borderColor: "rgba(255,255,255,0.1)", marginTop: "70px", minHeight: "calc(100vh - 70px)" }}>
         {children}
       </main>
     </div>
