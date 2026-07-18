@@ -34,7 +34,8 @@ export default function EmployerLoginPage() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-6">
+    <div className="flex-1 flex items-center justify-center p-6 bg-white">
+      <div className="w-full max-w-md bg-white p-10 rounded-[2rem] shadow-2xl border border-slate-200 relative overflow-hidden">
         <div className="text-center mb-10 mt-8 relative z-10">
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: "var(--navy)" }}>Partner Portal</h1>
           <p className="text-sm mt-2 font-medium tracking-wide uppercase" style={{ color: "var(--crimson)" }}>Phil-Apex Secure Access</p>
@@ -54,7 +55,7 @@ export default function EmployerLoginPage() {
               required 
               placeholder="partner@company.com"
               className="w-full bg-slate-50 border border-slate-200 py-3 px-4 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
-              style={{ color: "var(--ink)", focusRingColor: "var(--crimson)" }}
+              style={{ color: "var(--ink)" }}
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
@@ -67,7 +68,7 @@ export default function EmployerLoginPage() {
               required 
               placeholder="••••••"
               className="w-full bg-slate-50 border border-slate-200 py-3 px-4 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all tracking-widest font-mono"
-              style={{ color: "var(--ink)", focusRingColor: "var(--crimson)" }}
+              style={{ color: "var(--ink)" }}
               value={accessCode}
               onChange={e => setAccessCode(e.target.value)}
             />

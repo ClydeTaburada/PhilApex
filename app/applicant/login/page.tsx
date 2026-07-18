@@ -51,7 +51,7 @@ export default function ApplicantLoginPage() {
             required 
             placeholder="e.g. 2026-0001-A"
             className="w-full bg-slate-50 border border-slate-200 text-lg py-4 px-5 rounded-2xl text-center tracking-widest font-mono placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all"
-            style={{ color: "var(--ink)", focusRingColor: "var(--crimson)" }}
+            style={{ color: "var(--ink)" }}
             value={ref}
             onChange={e => setRef(e.target.value)}
           />
@@ -63,7 +63,7 @@ export default function ApplicantLoginPage() {
             type="date" 
             required 
             className="w-full bg-slate-50 border border-slate-200 text-lg py-4 px-5 rounded-2xl text-center font-medium focus:outline-none focus:ring-2 transition-all"
-            style={{ color: "var(--ink)", focusRingColor: "var(--crimson)" }}
+            style={{ color: "var(--ink)" }}
             value={dob}
             onChange={e => setDob(e.target.value)}
           />
