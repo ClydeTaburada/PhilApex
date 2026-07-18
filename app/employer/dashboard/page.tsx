@@ -98,61 +98,50 @@ export default async function EmployerDashboardPage() {
                   <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--navy)" }}>Logistics</th>
                 </tr>
               </thead>
+              <tbody className="divide-y divide-slate-100">
+                {deployments.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-12 text-center text-sm font-medium" style={{ color: "var(--ink-muted)" }}>
+                      No candidates have been assigned to your job orders yet.
+                    </td>
+                  </tr>
+                ) : deployments.map((d: any) => (
+                  <tr key={d.id} className="hover:bg-slate-50 transition-colors">
                     <td className="py-4 px-6">
-                      <p className="font-bold text-slate-200">{d.applicant?.full_name}</p>
+                      <p className="font-bold" style={{ color: "var(--ink)" }}>{d.applicant?.full_name}</p>
+                      <p className="text-[10px] uppercase font-bold mt-1" style={{ color: "var(--ink-faint)" }}>
+                        {d.applicant?.current_pipeline_stage?.replace(/_/g, ' ')}
+                      </p>
                     </td>
                     <td className="py-4 px-6">
-                      <p className="text-sm font-medium text-slate-300">{d.batch?.job_order?.position || "—"}</p>
-                      <p className="text-[10px] text-teal-500/80 mt-0.5">{d.batch?.batch_label}</p>
+                      <p className="text-sm font-bold" style={{ color: "var(--ink)" }}>{d.batch?.job_order?.position || "—"}</p>
+                      <p className="text-[10px] uppercase mt-1" style={{ color: "var(--ink-muted)" }}>{d.batch?.batch_label}</p>
                     </td>
-                    <td className="py-4 px-6">
-                      <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md 
-                        ${d.applicant?.medical_status === 'fit' ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' 
-                        : d.applicant?.medical_status === 'unfit' ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                        : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
-                        {d.applicant?.medical_status || "PENDING"}
-                      </span>
+                    <td className="py-4 px-6 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${d.applicant?.medical_status === 'fit' ? 'bg-green-500' : d.applicant?.medical_status === 'unfit' ? 'bg-red-500' : 'bg-amber-400'}`}></span>
+                        <span className="text-[10px] font-bold uppercase" style={{ color: "var(--ink)" }}>Med: {d.applicant?.medical_status || 'PENDING'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${d.applicant?.pdos_completed ? 'bg-green-500' : 'bg-amber-400'}`}></span>
+                        <span className="text-[10px] font-bold uppercase" style={{ color: "var(--ink)" }}>PDOS: {d.applicant?.pdos_completed ? 'DONE' : 'PENDING'}</span>
+                      </div>
                     </td>
-                    <td className="py-4 px-6">
-                      <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md 
-                        ${d.visa_status === 'approved' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' 
-                        : d.visa_status === 'denied' ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                        : 'bg-slate-700 text-slate-300 border border-slate-600'}`}>
-                        {d.visa_status || "PENDING"}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      {(d.flight_airline || d.flight_number) ? (
-                        <div>
-                          <p className="text-sm font-bold text-slate-200">{d.flight_airline} {d.flight_number}</p>
-                          {d.departure_datetime && (
-                            <p className="text-[10px] text-slate-400 mt-1">{new Date(d.departure_datetime).toLocaleString()}</p>
-                          )}
+                    <td className="py-4 px-6 space-y-1">
+                      <div className="text-[10px] font-bold uppercase" style={{ color: "var(--ink)" }}>
+                        Visa: <span className={d.visa_status === 'approved' ? 'text-green-600' : 'text-amber-600'}>{d.visa_status || '—'}</span>
+                      </div>
+                      {d.flight_airline && (
+                        <div className="text-[10px] font-bold uppercase" style={{ color: "var(--ink)" }}>
+                          Flight: {d.flight_airline} {d.flight_number}
                         </div>
-                      ) : (
-                        <p className="text-sm text-slate-500">—</p>
                       )}
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      {d.document_status === "dispatched" ? (
-                        <span className="text-[10px] font-black uppercase px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
-                          Dispatched
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-black uppercase px-2 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
-                          Processing
-                        </span>
+                      {d.document_status === 'dispatched' && (
+                        <span className="inline-block mt-1 bg-green-100 text-green-700 text-[9px] font-black uppercase px-2 py-0.5 rounded">Deployed</span>
                       )}
                     </td>
                   </tr>
                 ))}
-                {deployments.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-500">
-                      No candidates have been assigned to your organization yet.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
