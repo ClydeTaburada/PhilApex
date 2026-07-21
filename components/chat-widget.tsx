@@ -27,6 +27,7 @@ export function ChatWidget({
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [sendError, setSendError] = useState("");
   const supabase = createSupabaseBrowserClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -79,6 +80,7 @@ export function ChatWidget({
 
     const content = newMessage.trim();
     setNewMessage(""); // Optimistic clear
+    setSendError(""); // Clear previous errors
 
     const endpoint = senderType === "applicant" ? "/api/applicant/messages" : "/api/employer/messages";
     
@@ -92,9 +94,9 @@ export function ChatWidget({
       if (!res.ok) {
         throw new Error("Failed to send message");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending message:", error);
-      alert("Failed to send message. Please try again.");
+      setSendError("Failed to send message: The database is missing the required chat tables.");
       setNewMessage(content); // Restore optimistic clear
     }
   };
@@ -158,6 +160,13 @@ export function ChatWidget({
               )}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Error Area */}
+            {sendError && (
+              <div className="bg-red-50 px-4 py-2 text-xs font-bold text-red-600 border-t border-red-100">
+                {sendError}
+              </div>
+            )}
 
             {/* Input Area */}
             <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-200 flex gap-2">
