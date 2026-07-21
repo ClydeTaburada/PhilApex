@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getEmployerSession } from "@/lib/employer-auth";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { EmployerLogoutButton } from "./logout-button";
+import { ChatWidget } from "@/components/chat-widget";
 
 export const dynamic = "force-dynamic";
 
@@ -333,8 +334,14 @@ export default async function EmployerDashboardPage() {
             </a>
           </div>
         </div>
-
       </div>
+
+      <ChatWidget 
+        tableName="employer_messages" 
+        identifierColumn="partner_id" 
+        identifierValue={session.partner_id} 
+        senderType="employer" 
+      />
     </div>
   );
 }

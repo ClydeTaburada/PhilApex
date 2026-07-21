@@ -4,6 +4,7 @@ import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { LogoutButton } from "./logout-button";
 import { DocumentUploader } from "./document-uploader";
 import { ProfileEditor } from "./profile-editor";
+import { ChatWidget } from "@/components/chat-widget";
 
 export const dynamic = "force-dynamic";
 
@@ -305,8 +306,14 @@ export default async function ApplicantDashboardPage() {
             </a>
           </div>
         </div>
-
       </div>
+
+      <ChatWidget 
+        tableName="applicant_messages" 
+        identifierColumn="applicant_id" 
+        identifierValue={session.applicant_id} 
+        senderType="applicant" 
+      />
     </div>
   );
 }

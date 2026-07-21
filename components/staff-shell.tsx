@@ -1,10 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, Users, ClipboardList, Send, Building2, FileCheck2, Factory, Search } from "lucide-react";
+import { LayoutDashboard, Users, ClipboardList, Send, Building2, FileCheck2, Factory, Search, MessageCircle } from "lucide-react";
 import { StaffLogoutButton } from "@/components/staff-logout-button";
 
 type Props = {
-  active: "dashboard" | "applicants" | "job-orders" | "applicant-detail" | "partners" | "accreditations" | "companies" | "deployments" | "team";
+  active: "dashboard" | "messages" | "applicants" | "job-orders" | "applicant-detail" | "partners" | "accreditations" | "companies" | "deployments" | "team";
   staffName: string;
   staffRole: string;
   title: string;
@@ -24,6 +24,12 @@ const NAV_ITEMS = [
     label: "Dashboard",
     href: "/staff/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    key: "messages",
+    label: "Messages",
+    href: "/staff/messages",
+    icon: MessageCircle,
   },
   {
     key: "applicants",
