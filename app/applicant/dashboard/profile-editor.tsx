@@ -76,11 +76,11 @@ export function ProfileEditor({ applicantId, cellphone, email, address }: Props)
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Phone</p>
-            <p className="font-medium" style={{ color: "var(--ink)" }}>{cellphone}</p>
+            <p className="font-medium truncate" style={{ color: "var(--ink)" }}>{cellphone}</p>
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Email</p>
-            <p className="font-medium" style={{ color: "var(--ink)" }}>{email || "—"}</p>
+            <p className="font-medium truncate" style={{ color: "var(--ink)" }} title={email || ""}>{email || "—"}</p>
           </div>
           <div className="col-span-2">
             <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Address</p>

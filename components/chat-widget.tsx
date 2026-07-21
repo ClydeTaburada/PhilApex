@@ -80,15 +80,22 @@ export function ChatWidget({
     const content = newMessage.trim();
     setNewMessage(""); // Optimistic clear
 
-    const { error } = await supabase.from(tableName).insert({
-      [identifierColumn]: identifierValue,
-      sender_type: senderType,
-      content,
-    });
+    const endpoint = senderType === "applicant" ? "/api/applicant/messages" : "/api/employer/messages";
+    
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
 
-    if (error) {
+      if (!res.ok) {
+        throw new Error("Failed to send message");
+      }
+    } catch (error) {
       console.error("Error sending message:", error);
       alert("Failed to send message. Please try again.");
+      setNewMessage(content); // Restore optimistic clear
     }
   };
 
@@ -104,15 +111,20 @@ export function ChatWidget({
 
       {/* Chat Drawer/Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-[60] flex justify-end bg-black/50 sm:bg-transparent pointer-events-auto sm:pointer-events-none">
-          <div className="w-full sm:w-[400px] h-full sm:h-[600px] sm:max-h-[80vh] bg-white sm:mr-6 sm:mb-24 sm:mt-auto sm:rounded-2xl shadow-2xl flex flex-col pointer-events-auto overflow-hidden sm:border sm:border-gray-200">
+        <div className="fixed inset-0 z-[60] flex justify-end bg-black/50 sm:bg-transparent">
+          <div 
+            className="fixed inset-0" 
+            onClick={() => setIsOpen(false)} 
+            aria-hidden="true"
+          />
+          <div className="relative w-full sm:w-[400px] h-full sm:h-[600px] sm:max-h-[80vh] bg-white sm:mr-6 sm:mb-24 sm:mt-auto sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden sm:border sm:border-gray-200 z-10">
             {/* Header */}
             <div className="bg-[var(--navy)] text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MessageCircle size={20} />
                 <h3 className="font-semibold text-lg">{title}</h3>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white">
+              <button type="button" onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white p-1 rounded-lg">
                 <X size={24} />
               </button>
             </div>
