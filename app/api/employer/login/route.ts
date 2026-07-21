@@ -24,7 +24,13 @@ export async function POST(req: NextRequest) {
       { p_ip: clientIp, p_portal_type: "employer" }
     );
 
-    if (rlError || allowed === false) {
+    if (rlError) {
+      console.error("Rate limit check error:", rlError);
+      // If the function doesn't exist (e.g. migration not run), allow the login to proceed.
+      // We only block if the RPC explicitly returned allowed === false.
+    }
+
+    if (allowed === false) {
       return NextResponse.json(
         { error: "Too many login attempts. Please try again in 15 minutes." },
         { status: 429 }
