@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     const supabase = getSupabaseAdminClient();
 
-    const { error } = await supabase.from("applicant_messages").insert({
+    const { error } = await (supabase as any).from("applicant_messages").insert({
       applicant_id: session.applicant_id,
       sender_type: "applicant",
       content: content.trim(),
