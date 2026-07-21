@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                                 webViewClient = WebViewClient()
                                 
                                 // Point this to the live production URL of the Next.js app
-                                loadUrl("https://philapex.vercel.app")
+                                loadUrl("https://phil-apex-zbt1.vercel.app/")
                             }
                         },
                         modifier = Modifier.fillMaxSize()
