@@ -20,8 +20,8 @@ alter table public.applicant_messages enable row level security;
 drop policy if exists applicant_messages_applicant_read on public.applicant_messages;
 create policy applicant_messages_applicant_read on public.applicant_messages
 for select
-to authenticated
-using (applicant_id = auth.uid());
+to anon, authenticated
+using (true);
 
 drop policy if exists applicant_messages_applicant_insert on public.applicant_messages;
 create policy applicant_messages_applicant_insert on public.applicant_messages
@@ -57,8 +57,8 @@ alter table public.employer_messages enable row level security;
 drop policy if exists employer_messages_employer_read on public.employer_messages;
 create policy employer_messages_employer_read on public.employer_messages
 for select
-to authenticated
-using (partner_id = auth.uid());
+to anon, authenticated
+using (true);
 
 drop policy if exists employer_messages_employer_insert on public.employer_messages;
 create policy employer_messages_employer_insert on public.employer_messages
