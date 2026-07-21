@@ -299,6 +299,43 @@ export function ApplicantDetailPanel({ applicant, documents, deployment, jobOrde
         </div>
       )}
 
+      {/* ── Suggested Job Orders (Smart Matching) ──────── */}
+      {jobOrders && jobOrders.length > 0 && applicant.occupation_applied && (
+        <div className="card rounded-xl p-5 border-l-4" style={{ borderLeftColor: "var(--navy)" }}>
+          <p className="section-title mb-4">Smart Matches</p>
+          {(() => {
+            const matches = jobOrders.filter(jo => 
+              jo.trade?.toLowerCase().includes(applicant.occupation_applied!.toLowerCase()) ||
+              applicant.occupation_applied!.toLowerCase().includes(jo.trade?.toLowerCase() || "")
+            );
+            
+            if (matches.length === 0) {
+              return <p className="text-sm text-slate-500">No active job orders match "{applicant.occupation_applied}".</p>;
+            }
+
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {matches.map(jo => (
+                  <div key={jo.id} className="border rounded-lg p-4 bg-slate-50 hover:bg-slate-100 transition-colors" style={{ borderColor: "var(--border)" }}>
+                    <p className="text-sm font-bold text-slate-900">{jo.trade}</p>
+                    <p className="text-xs font-medium text-slate-500 mt-1">{jo.country} • {jo.program_name}</p>
+                    <button 
+                      onClick={() => {
+                        setAssignedJobOrder(jo.id);
+                        document.getElementById('ctrl-job-order')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="mt-3 text-[11px] font-bold text-blue-600 uppercase tracking-wide hover:underline"
+                    >
+                      Assign this Job Order →
+                    </button>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
       {/* ── Processing Controls ───────────────────────── */}
       <div className="card rounded-xl p-5">
         <p className="section-title mb-4">Processing Controls</p>
