@@ -7,12 +7,13 @@ type Props = {
   agg: any;
   acc: any[];
   soonAlerts: any[];
+  topJobOrders: any[];
   aggErrorMsg?: string;
 };
 
 const COLORS = ['#0f172a', '#3b82f6', '#14b8a6', '#f59e0b', '#8b5cf6', '#ec4899', '#f43f5e'];
 
-export function DashboardClient({ agg, acc, soonAlerts, aggErrorMsg }: Props) {
+export function DashboardClient({ agg, acc, soonAlerts, topJobOrders, aggErrorMsg }: Props) {
   
   // Prepare Pipeline Data
   const funnelStages = [
@@ -122,11 +123,41 @@ export function DashboardClient({ agg, acc, soonAlerts, aggErrorMsg }: Props) {
           </div>
         </div>
 
+        {/* ── Job Order Fulfillment Chart ──────────────────────────────────────────────── */}
+        <div className="bg-white rounded-2xl border shadow-sm lg:col-span-1 overflow-hidden flex flex-col" style={{ borderColor: "var(--border)" }}>
+          <div className="px-6 py-5 border-b bg-slate-50 flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
+            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-widest">Top Open Job Orders</h2>
+          </div>
+          <div className="p-6 flex-1 min-h-[350px]">
+            {topJobOrders && topJobOrders.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topJobOrders} layout="vertical" margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                  <XAxis type="number" hide />
+                  <YAxis type="category" dataKey="position" tick={{ fontSize: 10, fill: '#64748b' }} width={80} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 600, color: '#475569' }} />
+                  <Bar dataKey="slots_filled" name="Filled" fill="var(--navy)" radius={[0, 4, 4, 0]} stackId="a" />
+                  <Bar dataKey="manpower_requested" name="Requested" fill="#e2e8f0" radius={[0, 4, 4, 0]} stackId="a" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-400 text-sm font-medium">
+                No open job orders
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ── Secondary Column ──────────────────────────────────────────────── */}
-        <div className="space-y-6 flex flex-col">
+        <div className="space-y-6 flex flex-col lg:col-span-3 lg:flex-row gap-6">
           
           {/* Missing Doc Insight */}
-          <div className="bg-white rounded-2xl border shadow-sm p-6" style={{ borderColor: "var(--border)" }}>
+          <div className="bg-white rounded-2xl border shadow-sm p-6 flex-1" style={{ borderColor: "var(--border)" }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-red-50 text-red-500 rounded-lg">
                 <FileX className="w-5 h-5" />

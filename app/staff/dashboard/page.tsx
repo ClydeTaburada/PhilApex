@@ -59,6 +59,14 @@ export default async function DashboardOverviewPage() {
     return daysRemaining <= 90 && daysRemaining >= -30;
   });
 
+  // 4. Fetch Top Open Job Orders for Fulfillment Chart
+  const { data: topJobOrders } = await supabase
+    .from("job_orders")
+    .select("job_order_number, position, manpower_requested, slots_filled")
+    .eq("status", "open")
+    .order("created_at", { ascending: false })
+    .limit(5);
+
   return (
     <StaffShell
       active="dashboard"
@@ -71,7 +79,8 @@ export default async function DashboardOverviewPage() {
         agg={agg} 
         acc={acc} 
         soonAlerts={soonAlerts} 
-        aggErrorMsg={aggError?.message}
+        topJobOrders={topJobOrders || []}
+        aggErrorMsg={aggError?.message} 
       />
     </StaffShell>
   );
