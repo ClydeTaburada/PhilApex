@@ -229,9 +229,9 @@ export default async function ApplicantDashboardPage() {
             <div className="space-y-3">
               {missingDocs.map((doc: any) => (
                 <div key={doc.id} className="bg-white/80 border border-slate-100 p-3 rounded-xl shadow-sm">
-                  <p className="text-sm font-bold mb-1" style={{ color: "var(--ink)" }}>{doc.document_requirement.doc_name}</p>
-                  {doc.document_requirement.requires_file_upload ? (
-                    <DocumentUploader documentId={doc.id} docName={doc.document_requirement.doc_name} />
+                  <p className="text-sm font-bold mb-1" style={{ color: "var(--ink)" }}>{doc.document_requirement?.doc_name || "Unknown Document"}</p>
+                  {doc.document_requirement?.requires_file_upload ? (
+                    <DocumentUploader documentId={doc.id} docName={doc.document_requirement?.doc_name || "Document"} />
                   ) : (
                     <p className="text-xs" style={{ color: "var(--ink-muted)" }}>Please submit physical copy to office.</p>
                   )}
@@ -273,7 +273,7 @@ export default async function ApplicantDashboardPage() {
             <div className="space-y-3">
               {[...verifiedDocs, ...submittedDocs].map((doc: any) => (
                 <div key={doc.id} className="flex justify-between items-center py-2 border-b last:border-0" style={{ borderColor: "var(--border)" }}>
-                  <p className="text-xs font-medium" style={{ color: "var(--ink)" }}>{doc.document_requirement.doc_name}</p>
+                  <p className="text-xs font-medium" style={{ color: "var(--ink)" }}>{doc.document_requirement?.doc_name || "Unknown Document"}</p>
                   <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-md ${doc.status === 'verified' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                     {doc.status}
                   </span>
