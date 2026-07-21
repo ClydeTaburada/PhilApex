@@ -36,12 +36,14 @@ const NAV_ITEMS = [
     label: "Job Orders",
     href: "/staff/job-orders",
     icon: ClipboardList,
+    hideFromFrontDesk: true,
   },
   {
     key: "deployments",
     label: "Deployments",
     href: "/staff/deployments",
     icon: Send,
+    hideFromFrontDesk: true,
   },
   {
     key: "partners",
@@ -62,12 +64,14 @@ const NAV_ITEMS = [
     label: "Accreditations",
     href: "/staff/accreditations",
     icon: FileCheck2,
+    hideFromFrontDesk: true,
   },
   {
     key: "companies",
     label: "Companies",
     href: "/staff/companies",
     icon: Factory,
+    hideFromFrontDesk: true,
   },
 ];
 
@@ -120,7 +124,8 @@ export function StaffShell({
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5">
           {NAV_ITEMS.map((item) => {
-            if (item.adminOnly && staffRole !== "admin") return null;
+            if ((item as any).adminOnly && staffRole !== "admin") return null;
+            if ((item as any).hideFromFrontDesk && staffRole === "front_desk") return null;
             return (
               <Link
                 key={item.key}
@@ -185,7 +190,8 @@ export function StaffShell({
         <div className="flex-1" />
         <nav className="flex items-center gap-1 overflow-x-auto whitespace-nowrap">
           {NAV_ITEMS.map((item) => {
-            if (item.adminOnly && staffRole !== "admin") return null;
+            if ((item as any).adminOnly && staffRole !== "admin") return null;
+            if ((item as any).hideFromFrontDesk && staffRole === "front_desk") return null;
             return (
               <Link
                 key={item.key}
