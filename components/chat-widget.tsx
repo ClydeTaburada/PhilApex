@@ -119,7 +119,7 @@ export function ChatWidget({
             onClick={() => setIsOpen(false)} 
             aria-hidden="true"
           />
-          <div className="relative w-full sm:w-[400px] h-full sm:h-[600px] sm:max-h-[80vh] bg-white sm:mr-6 sm:mb-24 sm:mt-auto sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden sm:border sm:border-gray-200 z-10">
+          <div className="relative w-full sm:w-[400px] h-[90dvh] sm:h-[600px] sm:max-h-[80vh] bg-white mt-auto sm:mr-6 sm:mb-24 sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col overflow-hidden sm:border sm:border-gray-200 z-10">
             {/* Header */}
             <div className="bg-[var(--navy)] text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
