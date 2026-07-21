@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { encryptApplicantSession } from "@/lib/applicant-auth";
 import { cookies } from "next/headers";
@@ -12,8 +13,26 @@ export async function POST(request: Request) {
     }
 
     const supabase = getSupabaseAdminClient();
-    
-    // Fetch applicant matching ref number and DOB
+
+    // ── Rate Limiting ─────────────────────────────────────────
+    const headerStore = await headers();
+    const clientIp = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || headerStore.get("x-real-ip")
+      || "unknown";
+
+    const { data: allowed, error: rlError } = await (supabase as any).rpc(
+      "check_portal_login_rate_limit",
+      { p_ip: clientIp, p_portal_type: "applicant" }
+    );
+
+    if (rlError || allowed === false) {
+      return NextResponse.json(
+        { error: "Too many login attempts. Please try again in 15 minutes." },
+        { status: 429 }
+      );
+    }
+
+    // ── Credential Check ──────────────────────────────────────
     const { data: applicant, error } = await (supabase as any)
       .from("applicants")
       .select("id, reference_number, full_name, date_of_birth")

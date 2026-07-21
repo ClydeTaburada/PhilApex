@@ -236,3 +236,28 @@ export const deploymentSearchSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
 });
 
+// ── Portal Schemas ───────────────────────────────────────────
+
+const phMobileRegexPortal = /^09\d{9}$/;
+
+/**
+ * Applicants can only update their own contact info — never pipeline stage,
+ * document status, or any other staff-controlled field.
+ */
+export const applicantProfileUpdateSchema = z.object({
+  cellphone_number: z.string().regex(phMobileRegexPortal, "Use PH mobile format 09XXXXXXXXX").optional(),
+  email: z.string().email().max(320).optional().or(z.literal("")),
+  home_address: z.string().trim().max(500).optional().or(z.literal("")),
+});
+
+/**
+ * Allowed MIME types and max file size for applicant document uploads.
+ * Matches the Supabase storage bucket config from init.sql.
+ */
+export const ALLOWED_DOC_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "application/pdf",
+] as const;
+export const MAX_DOC_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+

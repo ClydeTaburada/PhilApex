@@ -8,12 +8,14 @@ import { ProgramsManager } from "@/components/programs-manager";
 import { PartnersManager } from "@/components/partners-manager";
 import { TradesManager } from "@/components/trades-manager";
 import { getAllTrades } from "@/lib/data/trades";
+import { EmployerInvite } from "@/components/employer-invite";
 
 export const dynamic = "force-dynamic";
 
 export default async function PartnersPage() {
   const context = await requireStaffContext();
   if (context.staff.role === "front_desk") return notFound();
+  const isAdmin = context.staff.role === "admin";
 
   const [partners, programs, trades] = await Promise.all([
     getAllPartners(),
@@ -47,6 +49,7 @@ export default async function PartnersPage() {
                 <th>Final Employer?</th>
                 <th>Program</th>
                 <th>Chain / Parent</th>
+                <th>Portal Access</th>
               </tr>
             </thead>
             <tbody>
@@ -82,12 +85,21 @@ export default async function PartnersPage() {
                     <td>
                       <PartnerChain chain={chain} />
                     </td>
+                    <td>
+                      <EmployerInvite
+                        partnerId={p.id}
+                        partnerName={p.name}
+                        contactEmail={p.contact_email}
+                        accessCode={p.access_code}
+                        isAdmin={isAdmin}
+                      />
+                    </td>
                   </tr>
                 );
               })}
               {partners.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-center p-8 text-ink-muted">
+                  <td colSpan={6} className="text-center p-8 text-ink-muted">
                     No foreign partners found.
                   </td>
                 </tr>

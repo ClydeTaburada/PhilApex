@@ -11,6 +11,7 @@ export type PartnerRow = {
   contact_phone: string | null;
   contact_email: string | null;
   contact_address: string | null;
+  access_code: string;
   created_at: string;
   // joined fields
   parent_name?: string | null;
@@ -30,7 +31,7 @@ export async function getAllPartners(): Promise<PartnerRow[]> {
     .from("foreign_partners")
     .select(`
       id, name, partner_type, is_final_employer, parent_partner_id,
-      program_id, contact_name, contact_phone, contact_email, contact_address, created_at,
+      program_id, contact_name, contact_phone, contact_email, contact_address, access_code, created_at,
       parent:foreign_partners!parent_partner_id(name),
       program:programs(name, country)
     `)
@@ -49,6 +50,7 @@ export async function getAllPartners(): Promise<PartnerRow[]> {
     contact_phone: row.contact_phone,
     contact_email: row.contact_email,
     contact_address: row.contact_address,
+    access_code: row.access_code,
     created_at: row.created_at,
     parent_name: Array.isArray(row.parent) ? row.parent[0]?.name ?? null : row.parent?.name ?? null,
     program_name: Array.isArray(row.program) ? row.program[0]?.name ?? null : row.program?.name ?? null,
