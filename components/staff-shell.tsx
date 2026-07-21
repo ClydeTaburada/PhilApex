@@ -4,7 +4,7 @@ import { LayoutDashboard, Users, ClipboardList, Send, Building2, FileCheck2, Fac
 import { StaffLogoutButton } from "@/components/staff-logout-button";
 
 type Props = {
-  active: "dashboard" | "applicants" | "job-orders" | "applicant-detail" | "partners" | "accreditations" | "companies" | "deployments";
+  active: "dashboard" | "applicants" | "job-orders" | "applicant-detail" | "partners" | "accreditations" | "companies" | "deployments" | "team";
   staffName: string;
   staffRole: string;
   title: string;
@@ -48,6 +48,14 @@ const NAV_ITEMS = [
     label: "System Settings",
     href: "/staff/partners",
     icon: Building2,
+    adminOnly: true,
+  },
+  {
+    key: "team",
+    label: "Team",
+    href: "/staff/team",
+    icon: Users,
+    adminOnly: true,
   },
   {
     key: "accreditations",
@@ -61,7 +69,7 @@ const NAV_ITEMS = [
     href: "/staff/companies",
     icon: Factory,
   },
-] as const;
+];
 
 export function StaffShell({
   active,
@@ -111,19 +119,22 @@ export function StaffShell({
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={`sidebar-link ${active === item.key ? "active" : ""}`}
-              id={`nav-${item.key}`}
-            >
-              <span className="w-5 h-5 flex items-center justify-center">
-                <item.icon className="w-5 h-5" />
-              </span>
-              <span className="font-medium text-sm">{item.label}</span>
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            if (item.adminOnly && staffRole !== "admin") return null;
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                className={`sidebar-link ${active === item.key ? "active" : ""}`}
+                id={`nav-${item.key}`}
+              >
+                <span className="w-5 h-5 flex items-center justify-center">
+                  <item.icon className="w-5 h-5" />
+                </span>
+                <span className="font-medium text-sm">{item.label}</span>
+              </Link>
+            );
+          })}
           {active === "applicant-detail" && (
             <span className="sidebar-link active cursor-default">
               <span className="w-5 h-5 flex items-center justify-center">
@@ -173,15 +184,18 @@ export function StaffShell({
         </Link>
         <div className="flex-1" />
         <nav className="flex items-center gap-1 overflow-x-auto whitespace-nowrap">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={`sidebar-link text-xs px-2 py-1 ${active === item.key ? "active" : ""}`}
-            >
-              <item.icon className="w-3.5 h-3.5 shrink-0" /> {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            if (item.adminOnly && staffRole !== "admin") return null;
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                className={`sidebar-link text-xs px-2 py-1 ${active === item.key ? "active" : ""}`}
+              >
+                <item.icon className="w-3.5 h-3.5 shrink-0" /> {item.label}
+              </Link>
+            );
+          })}
         </nav>
         <StaffLogoutButton />
       </div>
