@@ -86,6 +86,22 @@ export default async function ApplicantDashboardPage() {
   const submittedDocs = (docs || []).filter((d: any) => d.status === "submitted");
   const verifiedDocs = (docs || []).filter((d: any) => d.status === "verified");
 
+  // Find 2x2 Picture
+  const pictureDoc = docs?.find((d: any) => 
+    d.document_requirement?.doc_name?.toLowerCase().includes("2x2") ||
+    d.document_requirement?.doc_name?.toLowerCase().includes("picture") ||
+    d.document_requirement?.doc_name?.toLowerCase().includes("photo")
+  );
+
+  let profilePictureUrl = null;
+  if (pictureDoc?.file_path) {
+    const { data: { publicUrl } } = supabase
+      .storage
+      .from("applicant_documents")
+      .getPublicUrl(pictureDoc.file_path);
+    profilePictureUrl = publicUrl;
+  }
+
   return (
     <div className="flex-1 flex flex-col bg-surface">
 
@@ -187,27 +203,42 @@ export default async function ApplicantDashboardPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm mb-5">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-ink-faint mb-0.5">Full Name</p>
-                <p className="font-bold text-ink">{applicant.full_name}</p>
+            <div className="flex flex-col sm:flex-row gap-5 mb-5 items-start">
+              {/* Profile Avatar */}
+              <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden border-4 border-white shadow-md bg-slate-100 flex items-center justify-center">
+                {profilePictureUrl ? (
+                  <img src={profilePictureUrl} alt="Profile Picture" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-4xl font-black text-slate-300 uppercase">
+                    {applicant.full_name.charAt(0)}
+                  </span>
+                )}
               </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-ink-faint mb-0.5">Date of Birth</p>
-                <p className="font-medium text-ink">{applicant.date_of_birth}</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-ink-faint mb-0.5">Gender</p>
-                <p className="font-medium capitalize text-ink">{applicant.gender}</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-ink-faint mb-0.5">Occupation</p>
-                <p className="font-medium text-ink">{applicant.occupation_applied || "—"}</p>
+
+              <div className="flex-1 flex flex-col gap-4 justify-center">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Full Name</p>
+                  <p className="font-bold text-lg text-ink leading-tight">{applicant.full_name}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Date of Birth</p>
+                    <p className="font-medium text-sm text-ink">{applicant.date_of_birth}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Gender</p>
+                    <p className="font-medium text-sm capitalize text-ink">{applicant.gender}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Occupation Applied</p>
+                    <p className="font-medium text-sm text-ink bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 inline-block">{applicant.occupation_applied || "—"}</p>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Editable contact fields */}
-            <div className="pt-2 border-t border-slate-100">
+            <div className="pt-5 border-t border-slate-100">
               <ProfileEditor
                 applicantId={applicant.id}
                 cellphone={applicant.cellphone_number}

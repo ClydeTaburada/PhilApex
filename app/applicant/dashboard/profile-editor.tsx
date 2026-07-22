@@ -57,34 +57,50 @@ export function ProfileEditor({ applicantId, cellphone, email, address }: Props)
 
   if (!editing) {
     return (
-      <div className="border-t border-slate-100 pt-3 mt-1">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--ink-faint)" }}>Contact Information</p>
+      <div className="pt-2">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-navy">Contact Information</p>
           <button
             onClick={() => setEditing(true)}
-            className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all hover:shadow-sm active:scale-95"
-            style={{ color: "var(--navy)", background: "rgba(20,48,120,0.06)", border: "1px solid rgba(20,48,120,0.12)" }}
+            className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-95 text-navy border border-navy/20 bg-navy/5 hover:bg-navy/10"
           >
             ✏️ Edit
           </button>
         </div>
         {success && (
-          <div className="text-[10px] font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-lg mb-2 text-center border border-green-100">
+          <div className="text-[10px] font-bold text-green-700 bg-green-50 px-3 py-2 rounded-xl mb-4 text-center border border-green-200 shadow-sm animate-pulse">
             ✓ Contact info updated successfully
           </div>
         )}
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Phone</p>
-            <p className="font-medium truncate" style={{ color: "var(--ink)" }}>{cellphone}</p>
+        <div className="flex flex-col gap-3 text-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 transition-colors">
+            <div className="flex items-center gap-3">
+              <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-navy">📞</span>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Phone Number</p>
+                <p className="font-bold text-ink">{cellphone}</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Email</p>
-            <p className="font-medium truncate" style={{ color: "var(--ink)" }} title={email || ""}>{email || "—"}</p>
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 transition-colors">
+            <div className="flex items-center gap-3 w-full">
+              <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-navy">✉️</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Email Address</p>
+                <p className="font-bold text-ink truncate" title={email || ""}>{email || "—"}</p>
+              </div>
+            </div>
           </div>
-          <div className="col-span-2">
-            <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "var(--ink-faint)" }}>Address</p>
-            <p className="font-medium" style={{ color: "var(--ink)" }}>{address || "—"}</p>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 transition-colors">
+            <div className="flex items-center gap-3 w-full">
+              <span className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-navy">📍</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Home Address</p>
+                <p className="font-medium text-ink truncate" title={address || ""}>{address || "—"}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -92,47 +108,49 @@ export function ProfileEditor({ applicantId, cellphone, email, address }: Props)
   }
 
   return (
-    <div className="border-t border-slate-100 pt-3 mt-1 space-y-3">
-      <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--ink-faint)" }}>Edit Contact Information</p>
+    <div className="pt-2">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs font-bold uppercase tracking-widest text-navy">Edit Contact Information</p>
+      </div>
 
       {error && (
-        <div className="text-[10px] font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">{error}</div>
+        <div className="text-xs font-bold text-red-600 bg-red-50 px-4 py-2 rounded-xl border border-red-200 mb-4">{error}</div>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex flex-col gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-wide block mb-1" style={{ color: "var(--ink-faint)" }}>Phone</label>
+          <label className="text-[10px] font-bold uppercase tracking-wide block mb-1.5 text-ink-faint ml-1">Phone Number</label>
           <input
             type="tel"
             value={phone}
             onChange={e => setPhone(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 py-2 px-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+            className="w-full bg-white border border-slate-200 py-2.5 px-4 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all shadow-sm"
             placeholder="09XXXXXXXXX"
           />
         </div>
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-wide block mb-1" style={{ color: "var(--ink-faint)" }}>Email</label>
+          <label className="text-[10px] font-bold uppercase tracking-wide block mb-1.5 text-ink-faint ml-1">Email Address</label>
           <input
             type="email"
             value={emailVal}
             onChange={e => setEmailVal(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 py-2 px-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+            className="w-full bg-white border border-slate-200 py-2.5 px-4 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all shadow-sm"
             placeholder="you@email.com"
           />
         </div>
-        <div className="col-span-2">
-          <label className="text-[10px] font-bold uppercase tracking-wide block mb-1" style={{ color: "var(--ink-faint)" }}>Address</label>
+        <div>
+          <label className="text-[10px] font-bold uppercase tracking-wide block mb-1.5 text-ink-faint ml-1">Home Address</label>
           <input
             type="text"
             value={addr}
             onChange={e => setAddr(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 py-2 px-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
-            placeholder="Home address"
+            className="w-full bg-white border border-slate-200 py-2.5 px-4 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy transition-all shadow-sm"
+            placeholder="Full Home Address"
           />
         </div>
       </div>
 
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-3 justify-end mt-5">
         <button
           onClick={() => {
             setEditing(false);
@@ -141,8 +159,7 @@ export function ProfileEditor({ applicantId, cellphone, email, address }: Props)
             setAddr(address);
             setError("");
           }}
-          className="text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all active:scale-95"
-          style={{ color: "var(--ink-muted)" }}
+          className="text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-all hover:shadow-sm active:scale-95 text-ink-muted"
           disabled={saving}
         >
           Cancel
@@ -150,8 +167,7 @@ export function ProfileEditor({ applicantId, cellphone, email, address }: Props)
         <button
           onClick={handleSave}
           disabled={saving}
-          className="text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-xl text-white transition-all disabled:opacity-50 active:scale-95 shadow-sm"
-          style={{ background: "var(--crimson)" }}
+          className="text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-xl text-white transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0 shadow-sm bg-crimson"
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>
