@@ -9,9 +9,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { content } = await request.json();
+    const { content, urgency = "normal" } = await request.json();
     if (!content || typeof content !== "string") {
       return NextResponse.json({ error: "Message content is required" }, { status: 400 });
+    }
+
+    if (!["low", "normal", "high"].includes(urgency)) {
+      return NextResponse.json({ error: "Invalid urgency level" }, { status: 400 });
     }
 
     const supabase = getSupabaseAdminClient();
@@ -20,6 +24,7 @@ export async function POST(request: Request) {
       applicant_id: session.applicant_id,
       sender_type: "applicant",
       content: content.trim(),
+      urgency,
     });
 
     if (error) throw error;

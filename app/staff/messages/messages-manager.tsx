@@ -15,6 +15,7 @@ type Message = {
   id: string;
   sender_type: "applicant" | "employer" | "staff";
   content: string;
+  urgency: "low" | "normal" | "high";
   created_at: string;
 };
 
@@ -33,6 +34,7 @@ export function MessagesManager({
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [urgency, setUrgency] = useState<"low" | "normal" | "high">("normal");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const supabase = createSupabaseBrowserClient();
@@ -98,13 +100,16 @@ export function MessagesManager({
     if (!newMessage.trim() || !activeContactId) return;
 
     const content = newMessage.trim();
+    const selectedUrgency = urgency;
     setNewMessage(""); 
+    setUrgency("normal");
 
     const { error } = await supabase.from(tableName).insert({
       [identifierCol]: activeContactId,
       sender_type: "staff",
       staff_id: staffId,
       content,
+      urgency: selectedUrgency,
     });
 
     if (error) {
@@ -205,8 +210,14 @@ export function MessagesManager({
                         isStaff
                           ? "bg-[var(--navy)] text-white self-end rounded-br-sm shadow-md"
                           : "bg-white border border-gray-200 text-gray-800 self-start rounded-bl-sm shadow-sm"
-                      }`}
+                      } ${msg.urgency === "high" ? "ring-2 ring-red-500 shadow-red-200" : ""}`}
                     >
+                      {msg.urgency === "high" && (
+                        <div className="flex items-center gap-1 mb-1 text-xs font-bold text-red-500">
+                          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                          URGENT
+                        </div>
+                      )}
                       <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                       <span className={`text-[10px] block mt-1.5 ${isStaff ? "text-white/70" : "text-gray-400"}`}>
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -221,21 +232,29 @@ export function MessagesManager({
 
             {/* Chat Input */}
             <div className="p-4 bg-white border-t border-gray-200">
-              <form onSubmit={sendMessage} className="flex gap-3">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder={`Message ${activeContact.name}...`}
-                  className="flex-1 bg-gray-100 border-transparent rounded-full px-5 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-[var(--navy)] focus:border-transparent transition-all outline-none"
-                />
-                <button
-                  type="submit"
-                  disabled={!newMessage.trim()}
-                  className="bg-[var(--crimson)] text-white p-3 rounded-full hover:bg-red-700 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center shadow-md"
-                >
-                  <Send size={20} />
-                </button>
+              <form onSubmit={sendMessage} className="flex flex-col gap-3">
+                <div className="flex items-center gap-2 px-1">
+                  <span className="text-xs font-medium text-gray-500">Urgency:</span>
+                  <button type="button" onClick={() => setUrgency("low")} className={`text-xs px-3 py-1 rounded-full transition-colors ${urgency === "low" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>Low</button>
+                  <button type="button" onClick={() => setUrgency("normal")} className={`text-xs px-3 py-1 rounded-full transition-colors ${urgency === "normal" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>Normal</button>
+                  <button type="button" onClick={() => setUrgency("high")} className={`text-xs px-3 py-1 rounded-full transition-colors ${urgency === "high" ? "bg-red-100 text-red-700 font-bold" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>High</button>
+                </div>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder={`Message ${activeContact.name}...`}
+                    className="flex-1 bg-gray-100 border-transparent rounded-full px-5 py-3 text-sm focus:bg-white focus:ring-2 focus:ring-[var(--navy)] focus:border-transparent transition-all outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!newMessage.trim()}
+                    className="bg-[var(--crimson)] text-white p-3 rounded-full hover:bg-red-700 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center shadow-md"
+                  >
+                    <Send size={20} />
+                  </button>
+                </div>
               </form>
             </div>
           </>

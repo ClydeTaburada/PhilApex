@@ -8,6 +8,7 @@ type Message = {
   id: string;
   sender_type: "applicant" | "employer" | "staff";
   content: string;
+  urgency: "low" | "normal" | "high";
   created_at: string;
 };
 
@@ -27,6 +28,7 @@ export function ChatWidget({
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [urgency, setUrgency] = useState<"low" | "normal" | "high">("normal");
   const [sendError, setSendError] = useState("");
   const supabase = createSupabaseBrowserClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -79,7 +81,9 @@ export function ChatWidget({
     if (!newMessage.trim()) return;
 
     const content = newMessage.trim();
+    const selectedUrgency = urgency;
     setNewMessage(""); // Optimistic clear
+    setUrgency("normal");
     setSendError(""); // Clear previous errors
 
     const endpoint = senderType === "applicant" ? "/api/applicant/messages" : "/api/employer/messages";
@@ -88,7 +92,7 @@ export function ChatWidget({
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, urgency: selectedUrgency }),
       });
 
       if (!res.ok) {
@@ -148,8 +152,14 @@ export function ChatWidget({
                         isMe
                           ? "bg-[var(--navy)] text-white self-end rounded-br-sm"
                           : "bg-white border border-gray-200 text-gray-800 self-start rounded-bl-sm shadow-sm"
-                      }`}
+                      } ${msg.urgency === "high" ? "ring-2 ring-red-500 shadow-red-200" : ""}`}
                     >
+                      {msg.urgency === "high" && (
+                        <div className="flex items-center gap-1 mb-1 text-xs font-bold text-red-500">
+                          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                          URGENT
+                        </div>
+                      )}
                       <p className="text-sm">{msg.content}</p>
                       <span className={`text-[10px] block mt-1 ${isMe ? "text-white/70" : "text-gray-400"}`}>
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -169,21 +179,29 @@ export function ChatWidget({
             )}
 
             {/* Input Area */}
-            <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-200 flex gap-2">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type your message..."
-                className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[var(--navy)]"
-              />
-              <button
-                type="submit"
-                disabled={!newMessage.trim()}
-                className="bg-[var(--crimson)] text-white p-2 rounded-full disabled:opacity-50 hover:bg-red-700 transition-colors"
-              >
-                <Send size={18} />
-              </button>
+            <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-200 flex flex-col gap-2">
+              <div className="flex items-center gap-2 px-1">
+                <span className="text-xs font-medium text-gray-500">Urgency:</span>
+                <button type="button" onClick={() => setUrgency("low")} className={`text-xs px-2 py-1 rounded-full ${urgency === "low" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>Low</button>
+                <button type="button" onClick={() => setUrgency("normal")} className={`text-xs px-2 py-1 rounded-full ${urgency === "normal" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-500"}`}>Normal</button>
+                <button type="button" onClick={() => setUrgency("high")} className={`text-xs px-2 py-1 rounded-full ${urgency === "high" ? "bg-red-100 text-red-700 font-bold" : "bg-gray-100 text-gray-500"}`}>High</button>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type your message..."
+                  className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[var(--navy)]"
+                />
+                <button
+                  type="submit"
+                  disabled={!newMessage.trim()}
+                  className="bg-[var(--crimson)] text-white p-2 rounded-full disabled:opacity-50 hover:bg-red-700 transition-colors"
+                >
+                  <Send size={18} />
+                </button>
+              </div>
             </form>
           </div>
         </div>
