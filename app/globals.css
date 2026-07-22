@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@theme {
+  --color-navy: #0F1B4C;
+  --color-navy-light: #1a2d6d;
+  --color-navy-faint: #EEF1FB;
+  --color-crimson: #C91432;
+  --color-crimson-dk: #a50f27;
+  --color-crimson-lt: #fde8ec;
+  --color-surface: #F5F7FA;
+  --color-card: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-ink: #0F172A;
+  --color-ink-muted: #64748B;
+  --color-ink-faint: #94A3B8;
+}
+
 /* ── Brand Tokens ─────────────────────────────────────────── */
 :root {
   --navy:        #0F1B4C;
