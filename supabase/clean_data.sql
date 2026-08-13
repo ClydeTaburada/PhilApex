@@ -46,7 +46,7 @@ DELETE FROM public.applicants;
 -- 7) Job orders (references accreditations + foreign_partners)
 DELETE FROM public.job_orders;
 
--- We will PRESERVE reference data so you don't have to re-create it:
+-- 8) We will PRESERVE reference data so you don't have to re-create it (partners, accreditations, etc)
 -- DELETE FROM public.accreditation_history;
 -- DELETE FROM public.accreditations;
 -- DELETE FROM public.foreign_partners WHERE parent_partner_id IS NOT NULL;
@@ -59,6 +59,18 @@ DELETE FROM public.public_registration_rate_limits;
 
 -- 14) Reset the applicant reference number sequence
 ALTER SEQUENCE applicant_ref_seq RESTART WITH 1;
+
+-- 15) Clear Chat Messages
+DELETE FROM public.applicant_messages;
+DELETE FROM public.employer_messages;
+
+-- 16) Delete non-admin auth users
+-- First, get the IDs of all staff who are NOT admins. 
+-- Then delete from auth.users (which cascades to public.staff)
+DELETE FROM auth.users 
+WHERE id IN (
+  SELECT id FROM public.staff WHERE role != 'admin'
+);
 
 -- ── Verify what remains ───────────────────────────────────────
 SELECT 'auth.users' AS "table", count(*) AS "rows" FROM auth.users
