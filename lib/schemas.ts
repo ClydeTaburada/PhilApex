@@ -89,8 +89,8 @@ export const upsertJobOrderSchema = z
   .object({
     id: z.string().optional(),
     job_order_number: z.string().trim().min(1).max(100).optional(),
-    accreditation_id: z.string().uuid().optional(),
-    foreign_partner_id: z.string().uuid().optional(),
+    accreditation_id: z.string().uuid().optional().or(z.literal("")),
+    foreign_partner_id: z.string().uuid().optional().or(z.literal("")),
     position: z.string().trim().min(1).max(200).optional(),
     class: z.enum(["direct", "additional"]).optional(),
     manpower_requested: z.coerce.number().int().min(1).max(100000).optional(),

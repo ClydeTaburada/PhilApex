@@ -30,8 +30,17 @@ export function AccreditationsManager({
   const [error, setError] = useState<string | null>(null);
   const [renewingId, setRenewingId] = useState<string | null>(null);
   const [renewDates, setRenewDates] = useState({ date_issued: "", date_expiration: "" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState(emptyForm);
 
   const sortedRows = useMemo(() => [...rows].sort((a, b) => a.date_expiration.localeCompare(b.date_expiration)), [rows]);
+
+  // Build a lookup map from partner id → name for reliable display
+  const partnerMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    partners.forEach((p) => { map[p.id] = p.name; });
+    return map;
+  }, [partners]);
 
   const save = async (payload: Record<string, unknown>) => {
     setLoading(true);
@@ -69,6 +78,54 @@ export function AccreditationsManager({
     const saved = await save(payload);
     if (saved) {
       setForm(emptyForm);
+    }
+  };
+
+  const handleEdit = async (accreditationId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/staff/accreditations/${accreditationId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accreditation_id_dmw: editForm.accreditation_id_dmw,
+          principal_partner_id: editForm.principal_partner_id,
+          processing_unit: editForm.processing_unit || null,
+          representative: editForm.representative || null,
+          date_issued: editForm.date_issued,
+          date_expiration: editForm.date_expiration,
+          status: editForm.status,
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || "Unable to update accreditation");
+      setRows((prev) => prev.map((row) => (row.id === accreditationId ? { ...row, ...body } : row)));
+      setEditingId(null);
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message || "Unable to update accreditation");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (accreditationId: string, dmwId: string) => {
+    if (!confirm(`Delete accreditation "${dmwId}"? This cannot be undone.`)) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/staff/accreditations/${accreditationId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error || "Unable to delete accreditation");
+      }
+      setRows((prev) => prev.filter((row) => row.id !== accreditationId));
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message || "Unable to delete accreditation");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -154,14 +211,17 @@ export function AccreditationsManager({
                 <th>Principal Partner</th>
                 <th>Issued / Expires</th>
                 <th>Status</th>
-                <th>Action</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {sortedRows.map((row) => (
                 <tr key={row.id}>
                   <td className="font-semibold">{row.accreditation_id_dmw}</td>
-                  <td>{row.partner_name ?? "—"}</td>
+                  <td>
+                    {/* Use partnerMap for reliable lookup instead of joined partner_name */}
+                    {partnerMap[row.principal_partner_id] ?? row.partner_name ?? "—"}
+                  </td>
                   <td>
                     <div className="flex flex-col gap-1">
                       <span className="text-xs">{row.date_issued} → {row.date_expiration}</span>
@@ -170,7 +230,26 @@ export function AccreditationsManager({
                   </td>
                   <td><span className="badge badge-gray">{row.status}</span></td>
                   <td>
-                    {renewingId === row.id ? (
+                    {editingId === row.id ? (
+                      <div className="flex flex-col gap-2 min-w-[220px]">
+                        <input className="form-input" value={editForm.accreditation_id_dmw} onChange={(e) => setEditForm({ ...editForm, accreditation_id_dmw: e.target.value })} placeholder="DMW Ref ID" />
+                        <select className="form-select" value={editForm.principal_partner_id} onChange={(e) => setEditForm({ ...editForm, principal_partner_id: e.target.value })}>
+                          <option value="">Select partner</option>
+                          {partners.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                        </select>
+                        <input type="date" className="form-input" value={editForm.date_issued} onChange={(e) => setEditForm({ ...editForm, date_issued: e.target.value })} />
+                        <input type="date" className="form-input" value={editForm.date_expiration} onChange={(e) => setEditForm({ ...editForm, date_expiration: e.target.value })} />
+                        <select className="form-select" value={editForm.status} onChange={(e) => setEditForm({ ...editForm, status: e.target.value as any })}>
+                          <option value="active">Active</option>
+                          <option value="renewed">Renewed</option>
+                          <option value="expired_unconfirmed">Expired / Unconfirmed</option>
+                        </select>
+                        <div className="flex gap-2">
+                          <button type="button" className="btn btn-primary btn-sm" onClick={() => void handleEdit(row.id)} disabled={loading}>Save</button>
+                          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditingId(null)}>Cancel</button>
+                        </div>
+                      </div>
+                    ) : renewingId === row.id ? (
                       <div className="flex flex-col gap-2">
                         <input type="date" className="form-input" value={renewDates.date_issued} onChange={(e) => setRenewDates({ ...renewDates, date_issued: e.target.value })} />
                         <input type="date" className="form-input" value={renewDates.date_expiration} onChange={(e) => setRenewDates({ ...renewDates, date_expiration: e.target.value })} />
@@ -180,10 +259,25 @@ export function AccreditationsManager({
                         </div>
                       </div>
                     ) : (
-                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => {
-                        setRenewingId(row.id);
-                        setRenewDates({ date_issued: row.date_issued, date_expiration: row.date_expiration });
-                      }}>Renew</button>
+                      <div className="flex gap-2 flex-wrap">
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => {
+                          setEditingId(row.id);
+                          setEditForm({
+                            accreditation_id_dmw: row.accreditation_id_dmw,
+                            principal_partner_id: row.principal_partner_id,
+                            processing_unit: row.processing_unit ?? "",
+                            representative: row.representative ?? "",
+                            date_issued: row.date_issued,
+                            date_expiration: row.date_expiration,
+                            status: row.status,
+                          });
+                        }}>Edit</button>
+                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => {
+                          setRenewingId(row.id);
+                          setRenewDates({ date_issued: row.date_issued, date_expiration: row.date_expiration });
+                        }}>Renew</button>
+                        <button type="button" className="btn btn-ghost btn-sm text-red-500" onClick={() => void handleDelete(row.id, row.accreditation_id_dmw)} disabled={loading}>Delete</button>
+                      </div>
                     )}
                   </td>
                 </tr>

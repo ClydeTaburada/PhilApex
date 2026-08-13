@@ -62,7 +62,7 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
     fetch("/api/staff/partners")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) setPartners(data.filter((p: any) => p.is_final_employer));
+        if (Array.isArray(data)) setPartners(data);
       })
       .catch((err) => console.error(err));
 
