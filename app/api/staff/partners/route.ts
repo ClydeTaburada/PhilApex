@@ -14,6 +14,11 @@ export async function GET() {
   }
 }
 
+function generateAccessCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
 export async function POST(req: NextRequest) {
   try {
     const context = await requireStaffContext();
@@ -29,7 +34,7 @@ export async function POST(req: NextRequest) {
     const { id: _id, ...insertData } = parsed.data;
     const { data, error } = await (supabase as any)
       .from("foreign_partners")
-      .insert(insertData)
+      .insert({ ...insertData, access_code: generateAccessCode() })
       .select()
       .single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
