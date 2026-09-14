@@ -101,25 +101,25 @@ export function StaffShell({
     .toUpperCase();
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex bg-slate-50/50 text-gray-900 font-sans">
+    <div className="h-full flex-1 flex min-h-0 overflow-hidden font-sans">
       {/* ── Sidebar (Fixed & Compact) ───────────────────────── */}
-      <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-slate-900 text-slate-300 border-r border-slate-800 z-20">
+      <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white border-r border-gray-200 z-20">
         {/* Logo Area */}
-        <div className="shrink-0 h-14 flex items-center px-4 border-b border-slate-800 bg-slate-900/50">
+        <div className="shrink-0 h-14 flex items-center px-4 border-b border-gray-200 bg-white">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/LOGO.jpg"
               alt="Phil-Apex logo"
               width={100}
               height={40}
-              className="h-8 w-auto object-contain brightness-0 invert"
+              className="h-8 w-auto object-contain"
               priority
             />
           </Link>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
           {NAV_ITEMS.map((item) => {
             if ((item as any).adminOnly && staffRole !== "admin") return null;
             if ((item as any).hideFromFrontDesk && staffRole === "front_desk") return null;
@@ -129,33 +129,33 @@ export function StaffShell({
               <Link
                 key={item.key}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
                   isActive 
-                    ? "bg-primary text-white shadow-md shadow-primary/20" 
-                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                    ? "bg-primary/10 text-primary" 
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
-                <item.icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`} />
+                <item.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-gray-400"}`} />
                 {item.label}
               </Link>
             );
           })}
           {active === "applicant-detail" && (
-            <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium bg-primary text-white shadow-md shadow-primary/20">
-              <Search className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium bg-primary/10 text-primary">
+              <Search className="w-4 h-4 text-primary" />
               Applicant Detail
             </div>
           )}
         </nav>
 
         {/* User Profile Strip */}
-        <div className="shrink-0 p-3 border-t border-slate-800 bg-slate-950/30 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-inner">
+        <div className="shrink-0 p-3 border-t border-gray-200 bg-gray-50/50 flex items-center gap-2">
+          <div className="w-8 h-8 rounded bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0 border border-primary/20">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-slate-200 truncate">{staffName}</p>
-            <p className="text-[10px] text-slate-500 truncate">{roleLabel}</p>
+            <p className="text-[11px] font-bold text-gray-900 truncate">{staffName}</p>
+            <p className="text-[10px] text-gray-500 truncate">{roleLabel}</p>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <StaffNotifications />

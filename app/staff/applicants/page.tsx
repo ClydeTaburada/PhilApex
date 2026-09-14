@@ -98,19 +98,19 @@ export default async function StaffDashboardPage({
     >
       <div className="h-full flex flex-col min-h-0 overflow-hidden space-y-2.5">
         {/* 1. Fixed Header */}
-        <header className="shrink-0 flex items-center justify-between bg-white border border-gray-200 shadow-sm rounded-xl px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center shrink-0">
-              <span className="text-xl font-bold">👥</span>
+        <header className="shrink-0 flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-2.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <span className="text-sm font-bold">👥</span>
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Applicants</h1>
-              <p className="text-xs text-gray-500 leading-tight mt-0.5">Search and filter applicant pipeline records</p>
+              <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">Applicants</h1>
+              <p className="text-[11px] text-gray-500 leading-tight">Search and filter applicant pipeline records</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
+          <div className="flex items-center gap-2 text-[10px] font-mono text-gray-500">
              <span>Page {result.page} of {totalPages}</span>
-             <span className="bg-gray-100/80 px-2 py-1 rounded-md border border-gray-200">{result.total} total</span>
+             <span className="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">{result.total} total</span>
           </div>
         </header>
 
@@ -118,20 +118,20 @@ export default async function StaffDashboardPage({
         <form
           action="/staff/applicants"
           method="GET"
-          className="shrink-0 flex flex-wrap items-center gap-2.5 bg-white border border-gray-200 shadow-sm rounded-xl px-3 py-2"
+          className="shrink-0 flex flex-wrap items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2"
           id="dashboard-filter-form"
         >
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          <div className="relative flex-1 min-w-[200px] max-w-xs">
+            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
             <input
               name="search"
               placeholder="Search full name…"
               defaultValue={normalized.search}
-              className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           
-          <select name="pipeline_stage" defaultValue={normalized.pipeline_stage ?? ""} className="text-sm rounded-lg border border-gray-200 bg-gray-50/50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+          <select name="pipeline_stage" defaultValue={normalized.pipeline_stage ?? ""} className="text-xs rounded-md border border-gray-200 bg-gray-50 px-2 py-1.5">
             <option value="">All stages</option>
             <option value="registered">Registered</option>
             <option value="documents_complete">Docs Complete</option>
@@ -171,10 +171,10 @@ export default async function StaffDashboardPage({
         </form>
 
         {/* 3. Scrollable Work Area */}
-        <main className="flex-1 min-h-0 bg-white border border-gray-200 shadow-sm rounded-xl flex flex-col overflow-hidden">
+        <main className="flex-1 min-h-0 bg-white border border-gray-200 rounded-lg flex flex-col overflow-hidden">
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 z-10 text-xs text-gray-500 font-semibold uppercase tracking-wider shadow-sm">
+            <table className="w-full text-left text-xs whitespace-nowrap">
+              <thead className="sticky top-0 bg-gray-50/95 backdrop-blur-sm border-b border-gray-200 z-10 text-[11px] text-gray-500 font-semibold uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-3">Ref ID</th>
                   <th className="px-4 py-3">Name</th>
@@ -187,30 +187,30 @@ export default async function StaffDashboardPage({
               <tbody className="divide-y divide-gray-100">
                 {result.rows.map((row) => (
                   <tr key={row.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3">
-                      <Link href={`/staff/applicants/${row.id}`} className="font-mono text-xs font-semibold text-primary hover:underline bg-primary/5 px-2 py-1 rounded-md border border-primary/10">
+                    <td className="px-4 py-2.5">
+                      <Link href={`/staff/applicants/${row.id}`} className="font-mono text-[11px] font-semibold text-primary hover:underline bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10">
                         {row.reference_number || `${row.id.slice(0, 8)}…`}
                       </Link>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2.5">
                       <Link href={`/staff/applicants/${row.id}`} className="font-semibold text-gray-900 hover:underline">
                         {row.full_name}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-2.5 text-gray-600">
                       {row.occupation_applied ?? <span className="text-gray-400">N/A</span>}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2.5">
                       <PipelineBadge stage={row.current_pipeline_stage} />
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-4 py-2.5 text-center">
                       {row.has_passport ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider bg-emerald-100/80 text-emerald-800 border border-emerald-200">Yes</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">Yes</span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">No</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600 border border-gray-200">No</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right font-medium text-xs text-gray-500">
+                    <td className="px-4 py-2.5 text-right font-mono text-[10px] text-gray-500">
                       {new Date(row.created_at).toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" })}
                     </td>
                   </tr>

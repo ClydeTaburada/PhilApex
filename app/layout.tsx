@@ -24,7 +24,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body suppressHydrationWarning className="h-full antialiased">
+      <body suppressHydrationWarning className="h-screen w-screen overflow-hidden bg-background text-foreground flex flex-col antialiased">
         {children}
       </body>
     </html>
