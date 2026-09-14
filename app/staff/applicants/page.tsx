@@ -94,105 +94,45 @@ export default async function StaffDashboardPage({
       active="applicants"
       staffName={context.staff.full_name}
       staffRole={context.staff.role}
-      title="Applicant Dashboard"
-      subtitle="Search, filter, and manage applicant pipeline records."
+      layoutMode="canonical"
     >
-      {/* ── Alerts Widget ──────────────────────────────── */}
-      {contractAlerts.length > 0 && (
-        <div className="card rounded-xl border-l-4 border-amber p-4 mb-5 bg-amber-50/30">
-          <h3 className="font-bold text-amber-700 flex items-center gap-2 mb-3">
-            <span>⚠️</span> Contract Ends Approaching (Next 90 Days)
-          </h3>
-          <ul className="flex flex-col gap-2">
-            {contractAlerts.map((alert) => (
-              <li key={alert.id} className="text-sm">
-                <Link href={`/staff/applicants/${alert.applicant_id}`} className="font-medium text-ink hover:underline">
-                  {alert.applicant_name}
-                </Link>
-                <span className="text-ink-muted"> (Batch: {alert.batch_id.slice(0,8)}...)</span>
-                <span className="text-ink-muted"> — Deployed: {alert.entry_date}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className="h-full flex flex-col min-h-0 overflow-hidden space-y-2.5">
+        {/* 1. Fixed Header */}
+        <header className="shrink-0 flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-2.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <span className="text-sm font-bold">👥</span>
+            </div>
+            <div>
+              <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">Applicants</h1>
+              <p className="text-[11px] text-gray-500 leading-tight">Search and filter applicant pipeline records</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-[10px] font-mono text-gray-500">
+             <span>Page {result.page} of {totalPages}</span>
+             <span className="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">{result.total} total</span>
+          </div>
+        </header>
 
-      {/* ── Stats row ──────────────────────────────────── */}
-      <div className="grid gap-3 sm:grid-cols-3 mb-5">
-        <div className="card p-4 flex items-center gap-3 rounded-xl">
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0"
-            style={{ background: "var(--navy-faint)", color: "var(--navy)" }}
-          >
-            👥
+        {/* 2. Fixed Filter Bar */}
+        <form
+          action="/staff/applicants"
+          method="GET"
+          className="shrink-0 flex flex-wrap items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2"
+          id="dashboard-filter-form"
+        >
+          <div className="relative flex-1 min-w-[200px] max-w-xs">
+            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+            <input
+              name="search"
+              placeholder="Search full name…"
+              defaultValue={normalized.search}
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
+            />
           </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
-              Total Applicants
-            </p>
-            <p className="text-2xl font-bold" style={{ color: "var(--navy)" }}>
-              {result.total}
-            </p>
-          </div>
-        </div>
-        <div className="card p-4 flex items-center gap-3 rounded-xl">
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0"
-            style={{ background: "#F0FDF4", color: "#16A34A" }}
-          >
-            📄
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
-              Page
-            </p>
-            <p className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
-              {result.page} <span className="text-base font-normal" style={{ color: "var(--ink-faint)" }}>of {totalPages}</span>
-            </p>
-          </div>
-        </div>
-        <div className="card p-4 flex items-center gap-3 rounded-xl">
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0"
-            style={{ background: "var(--amber-lt)", color: "var(--amber)" }}
-          >
-            📊
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
-              Per Page
-            </p>
-            <p className="text-2xl font-bold" style={{ color: "var(--ink)" }}>
-              {result.pageSize}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Filters ────────────────────────────────────── */}
-      <form
-        action="/staff/dashboard"
-        method="GET"
-        className="card p-4 rounded-xl mb-4"
-        id="dashboard-filter-form"
-      >
-        <p className="section-title mb-3">Filters</p>
-        <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          <input
-            name="search"
-            placeholder="Search full name…"
-            defaultValue={normalized.search}
-            className="form-input"
-            id="filter-search"
-          />
-
-          <select
-            name="pipeline_stage"
-            defaultValue={normalized.pipeline_stage ?? ""}
-            className="form-select"
-            id="filter-pipeline"
-          >
-            <option value="">All pipeline stages</option>
+          
+          <select name="pipeline_stage" defaultValue={normalized.pipeline_stage ?? ""} className="text-xs rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5">
+            <option value="">All stages</option>
             <option value="registered">Registered</option>
             <option value="documents_complete">Docs Complete</option>
             <option value="dmw_registered">DMW Registered</option>
@@ -201,231 +141,110 @@ export default async function StaffDashboardPage({
             <option value="deployed">Deployed</option>
           </select>
 
-          <select
-            name="occupation_applied"
-            defaultValue={normalized.occupation_applied ?? ""}
-            className="form-select"
-            id="filter-trade"
-          >
+          <select name="occupation_applied" defaultValue={normalized.occupation_applied ?? ""} className="text-xs rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5">
             <option value="">All trades</option>
             {Array.from(uniqueTrades).map((trade) => (
-              <option key={trade as string} value={trade as string}>
-                {trade as string}
-              </option>
+              <option key={trade as string} value={trade as string}>{trade as string}</option>
             ))}
           </select>
 
-          <select
-            name="source"
-            defaultValue={normalized.source ?? ""}
-            className="form-select"
-            id="filter-source"
-          >
+          <select name="source" defaultValue={normalized.source ?? ""} className="text-xs rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5">
             <option value="">All sources</option>
             <option value="walk_in">Walk-in</option>
             <option value="job_fair">Job Fair</option>
             <option value="lgu_peso">LGU/PESO</option>
           </select>
 
-          <select
-            name="gender"
-            defaultValue={normalized.gender ?? ""}
-            className="form-select"
-            id="filter-gender"
-          >
-            <option value="">All genders</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-
-          <select
-            name="missing_document"
-            defaultValue={normalized.missing_document ?? ""}
-            className="form-select"
-            id="filter-doc"
-          >
-            <option value="">Any document state</option>
-            {docOptions.map((doc) => (
-              <option key={doc.id} value={doc.doc_name}>
-                Missing: {doc.doc_name}
-              </option>
-            ))}
-          </select>
-
-          <div className="form-field">
-            <label className="form-label">Date from</label>
-            <input
-              type="date"
-              name="date_from"
-              defaultValue={normalized.date_from}
-              className="form-input"
-              id="filter-date-from"
-            />
+          <div className="flex-1" />
+          
+          <div className="flex items-center gap-2">
+            <button type="submit" className="text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-lg shadow-sm transition-colors">
+              Apply
+            </button>
+            <Link href="/staff/applicants" className="text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition-colors">
+              Clear
+            </Link>
+            <Link href={`/api/staff/dashboard/export?${exportQuery.toString()}`} className="text-xs font-medium bg-slate-100 text-slate-900 border border-transparent hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors">
+              Export
+            </Link>
           </div>
+        </form>
 
-          <div className="form-field">
-            <label className="form-label">Date to</label>
-            <input
-              type="date"
-              name="date_to"
-              defaultValue={normalized.date_to}
-              className="form-input"
-              id="filter-date-to"
-            />
-          </div>
-
-          <select
-            name="has_passport"
-            defaultValue={normalized.has_passport ?? ""}
-            className="form-select"
-            id="filter-passport"
-          >
-            <option value="">Passport (any)</option>
-            <option value="true">Has passport</option>
-            <option value="false">No passport</option>
-          </select>
-        </div>
-
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            id="filter-apply"
-            type="submit"
-            className="btn btn-primary"
-          >
-            Apply Filters
-          </button>
-          <Link
-            href={`/api/staff/dashboard/export?${exportQuery.toString()}`}
-            id="filter-export"
-            className="btn btn-ghost"
-          >
-            ↓ Export CSV
-          </Link>
-          <Link href="/staff/dashboard" id="filter-clear" className="btn btn-ghost">
-            Clear
-          </Link>
-        </div>
-      </form>
-
-      {/* ── Table ──────────────────────────────────────── */}
-      <div className="card rounded-xl overflow-hidden mb-4">
-        <div className="overflow-x-auto">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Ref ID</th>
-                <th>Name</th>
-                <th>Trade</th>
-                <th>Source</th>
-                <th>Pipeline</th>
-                <th>Passport</th>
-                <th>Registered</th>
-              </tr>
-            </thead>
-            <tbody>
-              {result.rows.map((row) => (
-                <tr key={row.id}>
-                  <td>
-                    <Link
-                      href={`/staff/applicants/${row.id}`}
-                      className="font-mono text-xs font-semibold"
-                      style={{ color: "var(--navy)", textDecoration: "none" }}
-                      id={`applicant-row-${row.id.slice(0, 8)}`}
-                    >
-                      {row.reference_number || (
-                        <>
-                          {row.id.slice(0, 8)}
-                          <span style={{ color: "var(--ink-faint)" }}>…</span>
-                        </>
-                      )}
-                    </Link>
-                  </td>
-                  <td>
-                    <Link
-                      href={`/staff/applicants/${row.id}`}
-                      className="font-semibold hover:underline"
-                      style={{ color: "var(--ink)", textDecoration: "none" }}
-                    >
-                      {row.full_name}
-                    </Link>
-                  </td>
-                  <td style={{ color: "var(--ink-muted)" }}>
-                    {row.occupation_applied ?? <span style={{ color: "var(--ink-faint)" }}>N/A</span>}
-                  </td>
-                  <td style={{ color: "var(--ink-muted)" }}>
-                    {SOURCE_LABELS[row.source] ?? row.source}
-                  </td>
-                  <td>
-                    <PipelineBadge stage={row.current_pipeline_stage} />
-                  </td>
-                  <td>
-                    {row.has_passport ? (
-                      <span className="badge badge-green">Yes</span>
-                    ) : (
-                      <span className="badge badge-gray">No</span>
-                    )}
-                  </td>
-                  <td style={{ color: "var(--ink-muted)", fontSize: ".8125rem" }}>
-                    {new Date(row.created_at).toLocaleDateString("en-PH", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </td>
-                </tr>
-              ))}
-              {result.rows.length === 0 ? (
+        {/* 3. Scrollable Work Area */}
+        <main className="flex-1 min-h-0 bg-white border border-gray-200 rounded-xl flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <table className="w-full text-left text-xs whitespace-nowrap">
+              <thead className="sticky top-0 bg-gray-50/95 backdrop-blur-sm border-b border-gray-200 z-10 text-[11px] text-gray-500 font-semibold uppercase tracking-wider">
                 <tr>
-                  <td
-                    colSpan={7}
-                    className="text-center py-12"
-                    style={{ color: "var(--ink-faint)" }}
-                  >
-                    <div className="text-3xl mb-2">🔍</div>
-                    No applicants match these filters.
-                  </td>
+                  <th className="px-4 py-3">Ref ID</th>
+                  <th className="px-4 py-3">Name</th>
+                  <th className="px-4 py-3">Trade</th>
+                  <th className="px-4 py-3">Pipeline</th>
+                  <th className="px-4 py-3 text-center">Passport</th>
+                  <th className="px-4 py-3 text-right">Registered</th>
                 </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ── Pagination ─────────────────────────────────── */}
-      <div className="flex items-center justify-between text-sm" style={{ color: "var(--ink-muted)" }}>
-        <span>
-          Page{" "}
-          <strong style={{ color: "var(--ink)" }}>{result.page}</strong> of{" "}
-          <strong style={{ color: "var(--ink)" }}>{totalPages}</strong>
-          {" "}—{" "}
-          <strong style={{ color: "var(--ink)" }}>{result.total}</strong> total records
-        </span>
-        <div className="flex gap-2">
-          {result.page > 1 ? (
-            <Link
-              href={`/staff/dashboard?${new URLSearchParams({
-                ...normalized,
-                page: String(result.page - 1),
-              }).toString()}`}
-              id="pagination-prev"
-              className="btn btn-ghost btn-sm"
-            >
-              ← Previous
-            </Link>
-          ) : null}
-          {result.page < totalPages ? (
-            <Link
-              href={`/staff/dashboard?${new URLSearchParams({
-                ...normalized,
-                page: String(result.page + 1),
-              }).toString()}`}
-              id="pagination-next"
-              className="btn btn-ghost btn-sm"
-            >
-              Next →
-            </Link>
-          ) : null}
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {result.rows.map((row) => (
+                  <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-2.5">
+                      <Link href={`/staff/applicants/${row.id}`} className="font-mono text-[11px] font-semibold text-primary hover:underline bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10">
+                        {row.reference_number || `${row.id.slice(0, 8)}…`}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <Link href={`/staff/applicants/${row.id}`} className="font-semibold text-gray-900 hover:underline">
+                        {row.full_name}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-2.5 text-gray-600">
+                      {row.occupation_applied ?? <span className="text-gray-400">N/A</span>}
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <PipelineBadge stage={row.current_pipeline_stage} />
+                    </td>
+                    <td className="px-4 py-2.5 text-center">
+                      {row.has_passport ? (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">Yes</span>
+                      ) : (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600 border border-gray-200">No</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2.5 text-right font-mono text-[10px] text-gray-500">
+                      {new Date(row.created_at).toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" })}
+                    </td>
+                  </tr>
+                ))}
+                {result.rows.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-12 text-center">
+                       <span className="text-2xl mb-2 block">🔍</span>
+                       <p className="text-sm font-semibold text-gray-700">No applicants found</p>
+                       <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">Try adjusting your filters.</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Footer Info Strip */}
+          <footer className="shrink-0 bg-gray-50 border-t border-gray-200 px-4 py-2 text-[11px] text-gray-500 flex justify-between items-center">
+            <span>Showing {result.rows.length} items</span>
+            <div className="flex gap-2">
+              {result.page > 1 && (
+                <Link href={`/staff/applicants?${new URLSearchParams({ ...normalized, page: String(result.page - 1) }).toString()}`} className="hover:text-gray-900 hover:underline">
+                  ← Previous
+                </Link>
+              )}
+              {result.page < totalPages && (
+                <Link href={`/staff/applicants?${new URLSearchParams({ ...normalized, page: String(result.page + 1) }).toString()}`} className="hover:text-gray-900 hover:underline">
+                  Next →
+                </Link>
+              )}
+            </div>
+          </footer>
+        </main>
       </div>
     </StaffShell>
   );

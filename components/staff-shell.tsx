@@ -8,8 +8,9 @@ type Props = {
   active: "dashboard" | "messages" | "applicants" | "job-orders" | "applicant-detail" | "partners" | "accreditations" | "companies" | "deployments" | "team";
   staffName: string;
   staffRole: string;
-  title: string;
+  title?: string;
   subtitle?: string;
+  layoutMode?: "legacy" | "canonical";
   children: React.ReactNode;
 };
 
@@ -88,6 +89,7 @@ export function StaffShell({
   staffRole,
   title,
   subtitle,
+  layoutMode = "legacy",
   children,
 }: Props) {
   const roleLabel = ROLE_LABELS[staffRole] ?? staffRole;
@@ -99,95 +101,71 @@ export function StaffShell({
     .toUpperCase();
 
   return (
-    <div className="flex min-h-screen">
-      {/* ── Sidebar ────────────────────────────────────────── */}
-      <aside
-        className="hidden lg:flex flex-col w-[240px] shrink-0 fixed inset-y-0 left-0 z-20"
-        style={{ background: "var(--navy)" }}
-      >
-        {/* Logo */}
-        <div
-          className="px-4 py-4 border-b"
-          style={{ borderColor: "rgba(255,255,255,.1)" }}
-        >
-          <Link href="/" style={{ textDecoration: "none" }}>
+    <div className="h-screen w-screen overflow-hidden flex bg-slate-50 text-gray-900 font-sans">
+      {/* ── Sidebar (Fixed & Compact) ───────────────────────── */}
+      <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white border-r border-gray-200 z-20">
+        {/* Logo Area */}
+        <div className="shrink-0 h-14 flex items-center px-4 border-b border-gray-200 bg-white">
+          <Link href="/" className="flex items-center gap-2">
             <Image
               src="/LOGO.jpg"
               alt="Phil-Apex logo"
-              width={140}
-              height={56}
-              className="h-auto w-[110px]"
+              width={100}
+              height={40}
+              className="h-8 w-auto object-contain"
               priority
             />
           </Link>
-          <p
-            className="mt-2 text-[10px] font-bold uppercase tracking-widest"
-            style={{ color: "rgba(255,255,255,.4)" }}
-          >
-            Staff Portal
-          </p>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5">
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
           {NAV_ITEMS.map((item) => {
             if ((item as any).adminOnly && staffRole !== "admin") return null;
             if ((item as any).hideFromFrontDesk && staffRole === "front_desk") return null;
+            
+            const isActive = active === item.key;
             return (
               <Link
                 key={item.key}
                 href={item.href}
-                className={`sidebar-link ${active === item.key ? "active" : ""}`}
-                id={`nav-${item.key}`}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  isActive 
+                    ? "bg-primary/10 text-primary" 
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                }`}
               >
-                <span className="w-5 h-5 flex items-center justify-center">
-                  <item.icon className="w-5 h-5" />
-                </span>
-                <span className="font-medium text-sm">{item.label}</span>
+                <item.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-gray-400"}`} />
+                {item.label}
               </Link>
             );
           })}
           {active === "applicant-detail" && (
-            <span className="sidebar-link active cursor-default">
-              <span className="w-5 h-5 flex items-center justify-center">
-                <Search className="w-5 h-5" />
-              </span>
-              <span className="font-medium text-sm">Applicant Detail</span>
-            </span>
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium bg-primary/10 text-primary">
+              <Search className="w-4 h-4 text-primary" />
+              Applicant Detail
+            </div>
           )}
         </nav>
 
-        {/* Staff info + Logout */}
-        <div
-          className="px-3 py-4 border-t space-y-3"
-          style={{ borderColor: "rgba(255,255,255,.1)" }}
-        >
-          <div className="flex items-center gap-2.5 relative">
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-              style={{ background: "rgba(255,255,255,.15)", color: "#fff" }}
-            >
-              {initials}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white truncate">{staffName}</p>
-              <p className="text-[11px]" style={{ color: "rgba(255,255,255,.5)" }}>
-                {roleLabel}
-              </p>
-            </div>
-            <div className="absolute right-0 top-1">
-              <StaffNotifications />
-            </div>
+        {/* User Profile Strip */}
+        <div className="shrink-0 p-3 border-t border-gray-200 bg-gray-50/50 flex items-center gap-2">
+          <div className="w-8 h-8 rounded bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0 border border-primary/20">
+            {initials}
           </div>
-          <StaffLogoutButton />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold text-gray-900 truncate">{staffName}</p>
+            <p className="text-[10px] text-gray-500 truncate">{roleLabel}</p>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <StaffNotifications />
+            <StaffLogoutButton />
+          </div>
         </div>
       </aside>
 
-      {/* ── Mobile top bar ────────────────────────────────── */}
-      <div
-        className="lg:hidden fixed top-0 inset-x-0 z-20 flex items-center gap-3 px-4 h-14 border-b"
-        style={{ background: "var(--navy)", borderColor: "rgba(255,255,255,.1)" }}
-      >
+      {/* ── Mobile Top Bar ──────────────────────────────────── */}
+      <div className="lg:hidden shrink-0 fixed top-0 inset-x-0 z-20 flex items-center justify-between px-4 h-14 bg-white border-b border-gray-200">
         <Link href="/">
           <Image
             src="/LOGO.jpg"
@@ -197,46 +175,53 @@ export function StaffShell({
             className="h-7 w-auto"
           />
         </Link>
-        <div className="flex-1" />
-        <nav className="flex items-center gap-1 overflow-x-auto whitespace-nowrap">
-          {NAV_ITEMS.map((item) => {
-            if ((item as any).adminOnly && staffRole !== "admin") return null;
-            if ((item as any).hideFromFrontDesk && staffRole === "front_desk") return null;
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                className={`sidebar-link text-xs px-2 py-1 ${active === item.key ? "active" : ""}`}
-              >
-                <item.icon className="w-3.5 h-3.5 shrink-0" /> {item.label}
-              </Link>
-            );
-          })}
-        </nav>
         <div className="flex items-center gap-2">
           <StaffNotifications />
           <StaffLogoutButton />
         </div>
       </div>
 
-      {/* ── Main content ──────────────────────────────────── */}
-      <div className="flex-1 lg:ml-[240px]">
-        <main className="min-h-screen pt-20 lg:pt-8 px-4 md:px-6 py-6 max-w-[1200px] mx-auto">
-          {/* Page header */}
-          <div className="mb-5">
-            <h1 className="text-2xl font-bold" style={{ color: "var(--navy)" }}>
-              {title}
-            </h1>
-            {subtitle ? (
-              <p className="mt-0.5 text-sm" style={{ color: "var(--ink-muted)" }}>
-                {subtitle}
-              </p>
-            ) : null}
-          </div>
+      {/* ── Main Content Area ───────────────────────────────── */}
+      <main className={`flex-1 min-w-0 flex flex-col ${layoutMode === "legacy" ? "overflow-y-auto" : "min-h-0"}`}>
+        {/* Mobile scroll nav spacer */}
+        <div className="lg:hidden shrink-0 h-14" />
+        <div className="lg:hidden shrink-0 overflow-x-auto border-b border-gray-200 bg-white">
+          <nav className="flex items-center gap-1 px-2 py-2 whitespace-nowrap">
+            {NAV_ITEMS.map((item) => {
+              if ((item as any).adminOnly && staffRole !== "admin") return null;
+              if ((item as any).hideFromFrontDesk && staffRole === "front_desk") return null;
+              const isActive = active === item.key;
+              return (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <item.icon className="w-3.5 h-3.5 shrink-0" /> {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
-          {children}
-        </main>
-      </div>
+        {layoutMode === "legacy" ? (
+          <div className="p-4 md:p-6 max-w-6xl mx-auto w-full">
+            {title && (
+              <div className="mb-5">
+                <h1 className="text-xl font-bold text-gray-900 leading-tight">{title}</h1>
+                {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+              </div>
+            )}
+            {children}
+          </div>
+        ) : (
+          <div className="flex-1 min-h-0 flex flex-col p-2 sm:p-3">
+            {children}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

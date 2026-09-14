@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { StaffShell } from "@/components/staff-shell";
 import { requireStaffContext } from "@/lib/auth";
 import { getAllJobOrdersV2, getBatchesByJobOrder, getDeploymentsByBatch } from "@/lib/data/batches";
-import { JobOrderOverviewTable } from "@/components/job-order-overview-table";
+import { JobOrdersManager } from "@/components/job-orders-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -51,21 +51,12 @@ export default async function JobOrdersPage({
       active="job-orders"
       staffName={context.staff.full_name}
       staffRole={context.staff.role}
-      title="Job Orders (Phase 2)"
-      subtitle="View job orders, slots, and validity."
+      layoutMode="canonical"
     >
-      <div className="card rounded-xl p-5 mb-6">
-        <p className="text-sm text-ink-muted">
-          Job Orders are now associated with Accreditations and support batch/deployment workflows.
-        </p>
-      </div>
-
-      <div className="mt-4">
-        <JobOrderOverviewTable
-          jobOrderDetails={jobOrderDetails}
-          staffRole={context.staff.role}
-        />
-      </div>
+      <JobOrdersManager
+        jobOrderDetails={jobOrderDetails}
+        staffRole={context.staff.role}
+      />
     </StaffShell>
   );
 }
