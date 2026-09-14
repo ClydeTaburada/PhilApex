@@ -38,12 +38,22 @@ export async function PATCH(
       return NextResponse.json({ error: "Document row not found" }, { status: 404 });
     }
 
-    const oldValue = currentDocument.status;
-    const newValue = parsed.data.status;
+    const updates: Record<string, any> = { updated_by: staff.id };
+    if (parsed.data.status !== undefined) {
+      updates.status = parsed.data.status;
+    }
+    if (parsed.data.remarks !== undefined) {
+      updates.remarks = parsed.data.remarks;
+    }
+
+    if (Object.keys(updates).length === 1) {
+      // only updated_by
+      return NextResponse.json({ ok: true });
+    }
 
     const { error: updateError } = await supabase
       .from("applicant_documents")
-      .update({ status: newValue, updated_by: staff.id })
+      .update(updates)
       .eq("id", documentId)
       .eq("applicant_id", id);
 
@@ -51,14 +61,16 @@ export async function PATCH(
       return NextResponse.json({ error: "Unable to update document status" }, { status: 500 });
     }
 
-    await writeAuditLog({
-      staff_id: staff.id,
-      applicant_id: id,
-      action_type: "document_update",
-      field_changed: `document_status:${documentId}`,
-      old_value: oldValue,
-      new_value: newValue,
-    });
+    if (parsed.data.status !== undefined) {
+      await writeAuditLog({
+        staff_id: staff.id,
+        applicant_id: id,
+        action_type: "document_update",
+        field_changed: `document_status:${documentId}`,
+        old_value: currentDocument.status,
+        new_value: parsed.data.status,
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error) {

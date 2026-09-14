@@ -6,7 +6,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { applicantRegistrationSchema, type ApplicantRegistrationInput } from "@/lib/schemas";
 
-type FileField = "photo_2x2_file" | "passport_file" | "tesda_file";
+type FileField = "photo_2x2_file" | "passport_file" | "birth_certificate_file";
 
 const FILE_FIELD_CONFIG: Record<FileField, { label: string; hint: string; icon: string }> = {
   photo_2x2_file: {
@@ -19,9 +19,9 @@ const FILE_FIELD_CONFIG: Record<FileField, { label: string; hint: string; icon: 
     hint: "Data page with signature, colored copy",
     icon: "📘",
   },
-  tesda_file: {
-    label: "TESDA Certificate",
-    hint: "NC I / NC II related to position applied",
+  birth_certificate_file: {
+    label: "Birth Certificate",
+    hint: "PSA Authenticated Birth Certificate",
     icon: "📜",
   },
 };
@@ -70,6 +70,7 @@ export function RegisterForm() {
   const [fileMap, setFileMap] = useState<Partial<Record<FileField, File>>>({});
   const [fileNames, setFileNames] = useState<Partial<Record<FileField, string>>>({});
   const [positionOptions, setPositionOptions] = useState<string[]>([]);
+  const [programs, setPrograms] = useState<{ id: string; name: string; description: string; country: string }[]>([]);
 
   useEffect(() => {
     fetch("/api/public/trades")
@@ -80,6 +81,15 @@ export function RegisterForm() {
         }
       })
       .catch(err => console.error("Failed to load trades", err));
+
+    fetch("/api/public/programs")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setPrograms(data);
+        }
+      })
+      .catch(err => console.error("Failed to load programs", err));
   }, []);
 
   const {
@@ -98,6 +108,15 @@ export function RegisterForm() {
   });
 
   const selectedGender = watch("gender");
+  const selectedSource = watch("source");
+  const noMiddleName = watch("no_middle_name");
+
+  // Effect to clear middle_name if no_middle_name is checked
+  useEffect(() => {
+    if (noMiddleName) {
+      setValue("middle_name", "");
+    }
+  }, [noMiddleName, setValue]);
 
   const onFileChange = async (field: FileField, file: File | null) => {
     if (!file) {
@@ -122,7 +141,8 @@ export function RegisterForm() {
     try {
       const formData = new FormData();
       formData.set("first_name", values.first_name);
-      formData.set("middle_initial", values.middle_initial ?? "");
+      formData.set("middle_name", values.middle_name ?? "");
+      formData.set("no_middle_name", String(values.no_middle_name));
       formData.set("last_name", values.last_name);
       formData.set("name_extension", values.name_extension ?? "");
       formData.set("date_of_birth", values.date_of_birth);
@@ -134,6 +154,9 @@ export function RegisterForm() {
       formData.set("occupation_applied", values.occupation_applied);
       formData.set("has_passport", String(values.has_passport));
       formData.set("source", values.source);
+      if (values.source === "job_fair" && values.job_fair_city) {
+        formData.set("job_fair_city", values.job_fair_city);
+      }
 
       for (const [field, file] of Object.entries(fileMap)) {
         if (file) formData.set(field, file);
@@ -231,9 +254,22 @@ export function RegisterForm() {
           </div>
 
           <div className="form-field">
-            <label className="form-label" htmlFor="reg-mi">Middle Name</label>
-            <input id="reg-mi" {...register("middle_initial")} placeholder="Your middle name" className="form-input" />
-            {errors.middle_initial && <span className="form-error">{errors.middle_initial.message}</span>}
+            <label className="form-label flex items-center justify-between" htmlFor="reg-mi">
+              <span>Middle Name</span>
+              <label className="flex items-center gap-1 cursor-pointer text-[10px] text-ink-muted">
+                <input type="checkbox" {...register("no_middle_name")} className="rounded text-brand-primary" />
+                I don't have a middle name
+              </label>
+            </label>
+            <input 
+              id="reg-mi" 
+              {...register("middle_name")} 
+              placeholder={noMiddleName ? "N/A" : "Your full middle name"} 
+              className="form-input" 
+              disabled={noMiddleName}
+              style={{ backgroundColor: noMiddleName ? "var(--surface)" : "var(--white)" }}
+            />
+            {errors.middle_name && <span className="form-error">{errors.middle_name.message}</span>}
           </div>
 
           <div className="form-field">
@@ -302,12 +338,38 @@ export function RegisterForm() {
               <option value="lgu_peso">LGU/PESO</option>
             </select>
           </div>
+
+          {selectedSource === "job_fair" && (
+            <div className="form-field animate-fade-in sm:col-span-2">
+              <label className="form-label" htmlFor="reg-job-fair-city">Job Fair City <span style={{ color: "var(--crimson)" }}>*</span></label>
+              <input id="reg-job-fair-city" {...register("job_fair_city")} placeholder="City where the job fair was held" className="form-input" />
+              {errors.job_fair_city && <span className="form-error">{errors.job_fair_city.message}</span>}
+            </div>
+          )}
         </div>
       </div>
 
       {/* ── Section 3: Position ── */}
       <div className="card rounded-xl p-5">
         <SectionHeader step={3} label="Position & Application" />
+        
+        {programs.length > 0 && (
+          <div className="mb-6 p-4 rounded-xl border bg-slate-50">
+            <h3 className="font-bold text-sm mb-3">Available Programs</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {programs.map(p => (
+                <div key={p.id} className="bg-white p-3 rounded border shadow-sm flex flex-col">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-bold text-sm">{p.name}</span>
+                    <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-ink-muted">{p.country}</span>
+                  </div>
+                  {p.description && <span className="text-xs text-ink-muted mt-1 leading-relaxed">{p.description}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="form-field">
             <label className="form-label" htmlFor="reg-position">Preferred Trade / Position <span style={{ color: "var(--crimson)" }}>*</span></label>

@@ -25,10 +25,9 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     job_order_number: "",
-    position: "",
-    class: "direct" as "direct" | "additional",
-    manpower_requested: 1,
-    jo_validity_date: "",
+    positions: [{ position: "", needed: 1, position_code: "", salary_amount: undefined as number | undefined, salary_currency: "PHP", salary_period: "Monthly", wage_type: "Gross" }],
+    class: "Initial",
+    valid_until: "",
     country: "",
     program_name: "",
     trade: "",
@@ -79,10 +78,17 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
   const handleEdit = (jo: JobOrderDetail["jobOrder"]) => {
     setForm({
       job_order_number: jo.job_order_number || "",
-      position: jo.position || "",
-      class: jo.class as any || "direct",
-      manpower_requested: jo.slots_total || 1,
-      jo_validity_date: jo.jo_validity_date || "",
+      positions: jo.positions && jo.positions.length > 0 ? jo.positions.map(p => ({
+        position: p.position,
+        position_code: p.position_code || "",
+        needed: p.needed,
+        salary_amount: p.salary_amount || undefined,
+        salary_currency: p.salary_currency || "PHP",
+        salary_period: p.salary_period || "Monthly",
+        wage_type: p.wage_type || "Gross",
+      })) : [{ position: jo.trade || "", needed: jo.manpower_requested || 1, position_code: "", salary_amount: undefined as number | undefined, salary_currency: "PHP", salary_period: "Monthly", wage_type: "Gross" }],
+      class: jo.class as any || "Initial",
+      valid_until: jo.valid_until || "",
       country: jo.country || "",
       program_name: jo.program_name || "",
       trade: jo.trade || "",
@@ -139,17 +145,27 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                       </span>
                     </td>
                     <td>
-                      <span className="font-medium text-ink">{jobOrder.position ?? jobOrder.trade ?? "Unknown"}</span>
+                      <div className="flex flex-col gap-1">
+                        {(jobOrder.positions && jobOrder.positions.length > 0) ? (
+                          jobOrder.positions.map((p, idx) => (
+                            <span key={idx} className="font-medium text-ink text-sm flex gap-2 items-center">
+                              {p.position} <span className="text-xs text-ink-muted bg-slate-100 px-1.5 py-0.5 rounded">x{p.needed}</span>
+                            </span>
+                          ))
+                        ) : (
+                          <span className="font-medium text-ink">{jobOrder.trade ?? "Unknown"}</span>
+                        )}
+                      </div>
                     </td>
                     <td>
                       <span className="text-xs uppercase tracking-wide text-ink-muted">{jobOrder.class ?? "direct"}</span>
                     </td>
                     <td>
-                      <span className="font-medium">{deploymentCount} / {jobOrder.manpower_requested ?? jobOrder.slots_total}</span>
+                      <span className="font-medium">{deploymentCount} / {jobOrder.manpower_requested ?? 0}</span>
                     </td>
                     <td>
                       <div className="flex flex-col gap-1 items-start">
-                        <span className="text-xs">{jobOrder.jo_validity_date ?? "—"}</span>
+                        <span className="text-xs">{jobOrder.valid_until ?? "—"}</span>
                         {jobOrder.jo_validity_tier && <ExpiryBadge tier={jobOrder.jo_validity_tier} />}
                       </div>
                     </td>
@@ -247,19 +263,37 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="form-field">
                   <label className="form-label">Class</label>
-                  <select value={form.class} onChange={(e) => setForm((prev) => ({ ...prev, class: e.target.value as "direct" | "additional" }))} className="form-select">
-                    <option value="direct">Direct</option>
-                    <option value="additional">Additional</option>
+                  <select value={form.class} onChange={(e) => setForm((prev) => ({ ...prev, class: e.target.value as any }))} className="form-select">
+                    <option value="Initial">Initial</option>
+                    <option value="Additional">Additional</option>
                   </select>
                 </div>
                 <div className="form-field">
-                  <label className="form-label">Slots Required</label>
-                  <input type="number" min={1} value={form.manpower_requested} onChange={(e) => setForm((prev) => ({ ...prev, manpower_requested: Number(e.target.value) }))} className="form-input" />
+                  <label className="form-label">Validity Date</label>
+                  <input type="date" value={form.valid_until} onChange={(e) => setForm((prev) => ({ ...prev, valid_until: e.target.value }))} className="form-input" />
                 </div>
               </div>
-              <div className="form-field">
-                <label className="form-label">Validity Date</label>
-                <input type="date" value={form.jo_validity_date} onChange={(e) => setForm((prev) => ({ ...prev, jo_validity_date: e.target.value }))} className="form-input" />
+              
+              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                   <h4 className="font-bold text-sm">Positions Needed</h4>
+                   <button type="button" className="btn btn-ghost btn-sm text-xs" onClick={() => setForm(prev => ({...prev, positions: [...prev.positions, { position: "", needed: 1, position_code: "", salary_amount: undefined as number | undefined, salary_currency: "PHP", salary_period: "Monthly", wage_type: "Gross" }]}))}>+ Add Position</button>
+                </div>
+                {form.positions.map((pos, idx) => (
+                  <div key={idx} className="grid gap-3 md:grid-cols-3 items-end bg-white p-3 rounded-lg border border-slate-100 shadow-sm relative">
+                    {form.positions.length > 1 && (
+                       <button type="button" onClick={() => setForm(prev => ({...prev, positions: prev.positions.filter((_, i) => i !== idx)}))} className="absolute -top-2 -right-2 w-6 h-6 bg-red-100 text-red-600 rounded-full flex justify-center items-center text-xs hover:bg-red-200">×</button>
+                    )}
+                    <div className="form-field md:col-span-2">
+                      <label className="form-label text-xs">Position Title</label>
+                      <input value={pos.position} onChange={(e) => setForm((prev) => { const np = [...prev.positions]; np[idx].position = e.target.value; return {...prev, positions: np}; })} className="form-input text-sm py-1.5" placeholder="e.g. Welder" />
+                    </div>
+                    <div className="form-field">
+                      <label className="form-label text-xs">Slots</label>
+                      <input type="number" min={1} value={pos.needed} onChange={(e) => setForm((prev) => { const np = [...prev.positions]; np[idx].needed = Number(e.target.value); return {...prev, positions: np}; })} className="form-input text-sm py-1.5" />
+                    </div>
+                  </div>
+                ))}
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="form-field">
@@ -315,7 +349,13 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="form-field">
                   <label className="form-label">Trade / Position</label>
-                  <select value={form.trade} onChange={(e) => setForm((prev) => ({ ...prev, trade: e.target.value, position: e.target.value }))} className="form-select">
+                  <select value={form.trade} onChange={(e) => setForm((prev) => {
+                    const newPositions = [...prev.positions];
+                    if (newPositions.length === 1 && !newPositions[0].position) {
+                       newPositions[0].position = e.target.value;
+                    }
+                    return ({ ...prev, trade: e.target.value, positions: newPositions })
+                  })} className="form-select">
                     <option value="">Select a trade...</option>
                     {trades.map((t) => (
                       <option key={t} value={t}>{t}</option>
@@ -339,10 +379,9 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                 setEditingId(null);
                 setForm({
                   job_order_number: "",
-                  position: "",
-                  class: "direct",
-                  manpower_requested: 1,
-                  jo_validity_date: "",
+                  positions: [{ position: "", needed: 1, position_code: "", salary_amount: undefined as number | undefined, salary_currency: "PHP", salary_period: "Monthly", wage_type: "Gross" }],
+                  class: "Initial",
+                  valid_until: "",
                   country: "",
                   program_name: "",
                   trade: "",
@@ -367,32 +406,33 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                     setCreateError("Trade / Position is required.");
                     return;
                   }
-                  if (!form.jo_validity_date) {
+                  if (!form.valid_until) {
                     setCreateError("Validity date is required.");
+                    return;
+                  }
+                  if (form.positions.some(p => !p.position.trim())) {
+                    setCreateError("All positions must have a title.");
                     return;
                   }
                   setSaving(true);
                   setFeedback(null);
                   setCreateError(null);
                   try {
-                    const res = await fetch("/api/staff/job-orders", {
+                    const res = await fetch("/api/staff/job-orders-v2", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
                         id: editingId || undefined,
                         job_order_number: form.job_order_number,
-                        position: form.position,
+                        positions: form.positions,
                         class: form.class,
-                        manpower_requested: form.manpower_requested,
-                        jo_validity_date: form.jo_validity_date,
+                        valid_until: form.valid_until,
                         country: form.country,
                         program_name: form.program_name,
                         trade: form.trade,
                         gender_requirement: form.gender_requirement || null,
                         accreditation_id: form.accreditation_id || null,
                         foreign_partner_id: form.foreign_partner_id || null,
-                        slots_total: form.manpower_requested,
-                        slots_filled: 0,
                       }),
                     });
                     const body = await res.json();
@@ -400,10 +440,9 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                     setFeedback(editingId ? "Job order updated successfully." : "Job order created successfully.");
                     setForm({
                       job_order_number: "",
-                      position: "",
-                      class: "direct",
-                      manpower_requested: 1,
-                      jo_validity_date: "",
+                      positions: [{ position: "", needed: 1, position_code: "", salary_amount: undefined as number | undefined, salary_currency: "PHP", salary_period: "Monthly", wage_type: "Gross" }],
+                      class: "Initial",
+                      valid_until: "",
                       country: "",
                       program_name: "",
                       trade: "",
@@ -439,7 +478,9 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
                   {selectedJobOrder.jobOrder.job_order_number ?? selectedJobOrder.jobOrder.id.split("-")[0]}
                 </h3>
                 <p className="text-sm text-ink-muted">
-                  {selectedJobOrder.jobOrder.position ?? selectedJobOrder.jobOrder.trade ?? "Unknown"}
+                  {selectedJobOrder.jobOrder.positions && selectedJobOrder.jobOrder.positions.length > 0 
+                    ? selectedJobOrder.jobOrder.positions.map(p => p.position).join(", ") 
+                    : (selectedJobOrder.jobOrder.trade ?? "Unknown")}
                 </p>
               </div>
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSelectedJobOrder(null)}>

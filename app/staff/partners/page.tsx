@@ -1,3 +1,4 @@
+import React from "react";
 import { notFound } from "next/navigation";
 import { StaffShell } from "@/components/staff-shell";
 import { requireStaffContext } from "@/lib/auth";
@@ -53,57 +54,115 @@ export default async function PartnersPage() {
               </tr>
             </thead>
             <tbody>
-              {partners.map((p) => {
-                const chain = buildPartnerChain(p.id, partners);
-                return (
-                  <tr key={p.id}>
-                    <td>
-                      <span className="font-medium">{p.name}</span>
-                    </td>
-                    <td>
-                      <span className="text-xs uppercase tracking-wide text-ink-muted">
-                        {p.partner_type.replace(/_/g, " ")}
-                      </span>
-                    </td>
-                    <td>
-                      {p.is_final_employer ? (
-                        <span className="badge badge-green">Yes</span>
-                      ) : (
-                        <span className="badge badge-gray">No</span>
-                      )}
-                    </td>
-                    <td>
-                      {p.program_name ? (
-                        <div className="flex flex-col">
-                          <span className="font-medium text-xs">{p.program_name}</span>
-                          <span className="text-[10px] text-ink-faint">{p.program_country}</span>
-                        </div>
-                      ) : (
-                        <span className="text-ink-faint">—</span>
-                      )}
-                    </td>
-                    <td>
-                      <PartnerChain chain={chain} />
-                    </td>
-                    <td>
-                      <EmployerInvite
-                        partnerId={p.id}
-                        partnerName={p.name}
-                        contactEmail={p.contact_email}
-                        accessCode={p.access_code}
-                        isAdmin={isAdmin}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-              {partners.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="text-center p-8 text-ink-muted">
-                    No foreign partners found.
-                  </td>
-                </tr>
-              )}
+              {(() => {
+                const topLevelPartners = partners.filter(p => !p.parent_partner_id);
+                
+                if (partners.length === 0) {
+                  return (
+                    <tr>
+                      <td colSpan={6} className="text-center p-8 text-ink-muted">
+                        No foreign partners found.
+                      </td>
+                    </tr>
+                  );
+                }
+
+                return topLevelPartners.map(top => {
+                  const children = partners.filter(p => p.parent_partner_id === top.id);
+                  const topChain = buildPartnerChain(top.id, partners);
+                  
+                  return (
+                    <React.Fragment key={top.id}>
+                      <tr className="bg-slate-50/30">
+                        <td>
+                          <span className="font-bold text-navy">{top.name}</span>
+                        </td>
+                        <td>
+                          <span className="text-xs uppercase tracking-wide font-semibold text-navy/70">
+                            {top.partner_type.replace(/_/g, " ")}
+                          </span>
+                        </td>
+                        <td>
+                          {top.is_final_employer ? (
+                            <span className="badge badge-green">Yes</span>
+                          ) : (
+                            <span className="badge badge-gray">No</span>
+                          )}
+                        </td>
+                        <td>
+                          {top.program_name ? (
+                            <div className="flex flex-col">
+                              <span className="font-medium text-xs">{top.program_name}</span>
+                              <span className="text-[10px] text-ink-faint">{top.program_country}</span>
+                            </div>
+                          ) : (
+                            <span className="text-ink-faint">—</span>
+                          )}
+                        </td>
+                        <td>
+                          <PartnerChain chain={topChain} />
+                        </td>
+                        <td>
+                          <EmployerInvite
+                            partnerId={top.id}
+                            partnerName={top.name}
+                            contactEmail={top.contact_email}
+                            accessCode={top.access_code}
+                            isAdmin={isAdmin}
+                          />
+                        </td>
+                      </tr>
+                      {children.map(child => {
+                        const childChain = buildPartnerChain(child.id, partners);
+                        return (
+                          <tr key={child.id}>
+                            <td className="pl-10">
+                              <div className="flex items-center gap-2">
+                                <span className="text-slate-300">↳</span>
+                                <span className="font-medium">{child.name}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <span className="text-xs uppercase tracking-wide text-ink-muted">
+                                {child.partner_type.replace(/_/g, " ")}
+                              </span>
+                            </td>
+                            <td>
+                              {child.is_final_employer ? (
+                                <span className="badge badge-green">Yes</span>
+                              ) : (
+                                <span className="badge badge-gray">No</span>
+                              )}
+                            </td>
+                            <td>
+                              {child.program_name ? (
+                                <div className="flex flex-col">
+                                  <span className="font-medium text-xs">{child.program_name}</span>
+                                  <span className="text-[10px] text-ink-faint">{child.program_country}</span>
+                                </div>
+                              ) : (
+                                <span className="text-ink-faint">—</span>
+                              )}
+                            </td>
+                            <td>
+                              <PartnerChain chain={childChain} />
+                            </td>
+                            <td>
+                              <EmployerInvite
+                                partnerId={child.id}
+                                partnerName={child.name}
+                                contactEmail={child.contact_email}
+                                accessCode={child.access_code}
+                                isAdmin={isAdmin}
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                });
+              })()}
             </tbody>
           </table>
         </div>

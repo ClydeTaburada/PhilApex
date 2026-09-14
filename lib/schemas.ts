@@ -23,12 +23,13 @@ const phMobileRegex = /^09\d{9}$/;
 
 export const applicantRegistrationSchema = z.object({
   first_name: z.string().trim().min(2).max(80),
-  middle_initial: z
+  middle_name: z
     .string()
     .trim()
     .max(80)
     .optional()
     .or(z.literal("")),
+  no_middle_name: z.boolean().default(false).optional(),
   last_name: z.string().trim().min(2).max(80),
   name_extension: z.string().trim().max(20).optional().or(z.literal("")),
   date_of_birth: z.string().date(),
@@ -40,6 +41,7 @@ export const applicantRegistrationSchema = z.object({
   occupation_applied: z.string().trim().min(2).max(200),
   has_passport: z.boolean(),
   source: sourceSchema,
+  job_fair_city: z.string().trim().max(100).optional().or(z.literal("")),
   job_order_id: z.uuid().optional(),
 });
 
@@ -63,7 +65,8 @@ export const dashboardFilterSchema = z.object({
 });
 
 export const updateDocumentStatusSchema = z.object({
-  status: documentStatusSchema,
+  status: documentStatusSchema.optional(),
+  remarks: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
 export const updateApplicantPipelineSchema = z.object({
@@ -91,20 +94,31 @@ export const upsertJobOrderSchema = z
     job_order_number: z.string().trim().min(1).max(100).optional(),
     accreditation_id: z.string().uuid().optional().or(z.literal("")),
     foreign_partner_id: z.string().uuid().optional().or(z.literal("")),
-    position: z.string().trim().min(1).max(200).optional(),
-    class: z.enum(["direct", "additional"]).optional(),
-    manpower_requested: z.coerce.number().int().min(1).max(100000).optional(),
-    jo_validity_date: z.string().trim().min(1).max(100).optional(),
+    class: z.string().optional(),
+    date_approved: z.string().date().optional().or(z.literal("")),
+    valid_until: z.string().date().optional().or(z.literal("")),
+    status_text: z.string().optional(),
+    category: z.string().optional().or(z.literal("")),
+    reference_number: z.string().optional().or(z.literal("")),
+    parent_job_order_id: z.string().uuid().optional().or(z.literal("")),
+    positions: z.array(z.object({
+      id: z.string().optional(),
+      position: z.string().min(1),
+      position_code: z.string().optional().or(z.literal("")),
+      needed: z.coerce.number().int().min(1),
+      salary_amount: z.coerce.number().optional(),
+      salary_currency: z.string().optional().or(z.literal("")),
+      salary_period: z.string().optional().or(z.literal("")),
+      wage_type: z.string().optional().or(z.literal("")),
+    })).optional(),
     country: z.string().trim().min(2).max(100).optional(),
     program_name: z.string().trim().min(2).max(100).optional(),
     trade: z.string().trim().min(2).max(120).optional(),
     gender_requirement: genderSchema.optional(),
-    slots_total: z.coerce.number().int().min(1).max(100000).optional(),
-    slots_filled: z.coerce.number().int().min(0).max(100000).optional(),
   })
   .superRefine((value, ctx) => {
     const usesPhase2 = Boolean(
-      value.job_order_number || value.position || value.class || value.manpower_requested || value.jo_validity_date,
+      value.job_order_number || (value.positions && value.positions.length > 0) || value.class || value.valid_until,
     );
     const usesLegacy = Boolean(value.country || value.program_name || value.trade);
 
@@ -112,17 +126,14 @@ export const upsertJobOrderSchema = z
       if (!value.job_order_number) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: "JO Number is required.", path: ["job_order_number"] });
       }
-      if (!value.position) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Position is required.", path: ["position"] });
+      if (!value.positions || value.positions.length === 0) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "At least one position is required.", path: ["positions"] });
       }
       if (!value.class) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Class is required.", path: ["class"] });
       }
-      if (value.manpower_requested == null) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Slots Required is required.", path: ["manpower_requested"] });
-      }
-      if (!value.jo_validity_date) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Validity date is required.", path: ["jo_validity_date"] });
+      if (!value.valid_until) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Validity date is required.", path: ["valid_until"] });
       }
       return;
     }
@@ -188,12 +199,25 @@ export const renewAccreditationSchema = z.object({
 export const upsertJobOrderV2Schema = z.object({
   id: z.string().optional(),
   job_order_number: z.string().trim().min(1).max(100),
-  accreditation_id: z.uuid(),
-  foreign_partner_id: z.uuid(),
-  position: z.string().trim().min(1).max(200),
-  class: z.enum(["direct", "additional"]),
-  manpower_requested: z.number().int().min(1).max(100000),
-  jo_validity_date: z.string().date(),
+  accreditation_id: z.string().uuid(),
+  foreign_partner_id: z.string().uuid(),
+  class: z.string(),
+  date_approved: z.string().date().optional().or(z.literal("")),
+  valid_until: z.string().date(),
+  status_text: z.string().default("Active"),
+  category: z.string().optional().or(z.literal("")),
+  reference_number: z.string().optional().or(z.literal("")),
+  parent_job_order_id: z.string().uuid().optional().or(z.literal("")),
+  positions: z.array(z.object({
+    id: z.string().optional(),
+    position: z.string().min(1),
+    position_code: z.string().optional().or(z.literal("")),
+    needed: z.coerce.number().int().min(1),
+    salary_amount: z.coerce.number().optional(),
+    salary_currency: z.string().optional().or(z.literal("")),
+    salary_period: z.string().optional().or(z.literal("")),
+    wage_type: z.string().optional().or(z.literal("")),
+  })).min(1),
   // Phase 1 legacy fields kept optional
   country: z.string().trim().min(2).max(100).optional(),
   program_name: z.string().trim().min(2).max(100).optional(),

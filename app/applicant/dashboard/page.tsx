@@ -194,46 +194,41 @@ export default async function ApplicantDashboardPage() {
 
           {/* 4. PROFILE SUMMARY */}
           <div className="break-inside-avoid w-full bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/50">
-            <div className="flex items-center justify-between mb-5">
-              <p className="text-xs font-bold uppercase tracking-widest text-navy">My Profile</p>
-              {applicant.reference_number && (
-                <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-navy">
-                  {applicant.reference_number}
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-5 mb-5 items-start">
+            <div className="flex flex-row gap-4 mb-5 items-center">
               {/* Profile Avatar */}
-              <div className="flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden border-4 border-white shadow-md bg-slate-100 flex items-center justify-center">
+              <div className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl overflow-hidden border-[3px] sm:border-4 border-white shadow-md bg-slate-100 flex items-center justify-center">
                 {profilePictureUrl ? (
                   <img src={profilePictureUrl} alt="Profile Picture" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-4xl font-black text-slate-300 uppercase">
+                  <span className="text-3xl sm:text-4xl font-black text-slate-300 uppercase">
                     {applicant.full_name.charAt(0)}
                   </span>
                 )}
               </div>
 
-              <div className="flex-1 flex flex-col gap-4 justify-center">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Full Name</p>
-                  <p className="font-bold text-lg text-ink leading-tight">{applicant.full_name}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Date of Birth</p>
-                    <p className="font-medium text-sm text-ink">{applicant.date_of_birth}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Gender</p>
-                    <p className="font-medium text-sm capitalize text-ink">{applicant.gender}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Occupation Applied</p>
-                    <p className="font-medium text-sm text-ink bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 inline-block">{applicant.occupation_applied || "—"}</p>
-                  </div>
-                </div>
+              <div className="flex-1 flex flex-col justify-center">
+                <p className="font-black text-lg sm:text-xl text-ink leading-tight">{applicant.full_name}</p>
+                {applicant.reference_number && (
+                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-ink-muted mt-1 font-mono">
+                    {applicant.reference_number}
+                  </p>
+                )}
+                {applicant.occupation_applied && (
+                  <span className="inline-block mt-2 px-2.5 py-1 bg-navy/5 border border-navy/10 text-navy font-bold text-[10px] sm:text-xs rounded-md w-fit">
+                    {applicant.occupation_applied}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-5 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Date of Birth</p>
+                <p className="font-medium text-sm text-ink">{applicant.date_of_birth}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Gender</p>
+                <p className="font-medium text-sm capitalize text-ink">{applicant.gender}</p>
               </div>
             </div>
 

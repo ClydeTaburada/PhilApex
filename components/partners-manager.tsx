@@ -9,6 +9,7 @@ export function PartnersManager({ partners, programs }: { partners: PartnerRow[]
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProgramId, setSelectedProgramId] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,8 +18,16 @@ export function PartnersManager({ partners, programs }: { partners: PartnerRow[]
     setError(null);
     const fd = new FormData(form);
     
-    // Map checkbox to boolean
-    const isFinalEmployer = fd.get("is_final_employer") === "true";
+    
+    const selectedProgram = programs.find(p => p.id === selectedProgramId);
+    const isTITP = selectedProgram?.name?.toUpperCase().includes("TITP") ?? false;
+    const isSSW = selectedProgram?.name?.toUpperCase().includes("SSW") ?? false;
+    
+    // Map checkbox to boolean. If SSW, force to true.
+    let isFinalEmployer = fd.get("is_final_employer") === "true";
+    if (isSSW) {
+      isFinalEmployer = true;
+    }
 
     const payload = {
       name: fd.get("name"),
@@ -84,15 +93,30 @@ export function PartnersManager({ partners, programs }: { partners: PartnerRow[]
               </div>
             </div>
             
-            <div className="form-field">
-              <label className="flex items-center gap-2 cursor-pointer bg-blue-50 border border-blue-100 p-3 rounded-lg hover:bg-blue-100 transition-colors">
-                <input type="checkbox" name="is_final_employer" value="true" className="w-5 h-5 accent-blue-600 rounded" />
-                <div className="flex flex-col">
-                  <span className="font-medium text-sm text-blue-900">This is a Final Employer</span>
-                  <span className="text-xs text-blue-700">Check this box if this organization is the actual workplace where the applicant will be deployed.</span>
+            
+            {(!selectedProgramId || programs.find(p => p.id === selectedProgramId)?.name?.toUpperCase().includes("TITP")) && (
+              <div className="form-field">
+                <label className="flex items-center gap-2 cursor-pointer bg-blue-50 border border-blue-100 p-3 rounded-lg hover:bg-blue-100 transition-colors">
+                  <input type="checkbox" name="is_final_employer" value="true" className="w-5 h-5 accent-blue-600 rounded" />
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm text-blue-900">This is a Direct/Final Employer</span>
+                    <span className="text-xs text-blue-700">Check this box if this organization is the actual workplace where the applicant will be deployed.</span>
+                  </div>
+                </label>
+              </div>
+            )}
+            
+            {(programs.find(p => p.id === selectedProgramId)?.name?.toUpperCase().includes("SSW")) && (
+              <div className="form-field">
+                <div className="flex items-center gap-2 bg-green-50 border border-green-100 p-3 rounded-lg">
+                  <span className="w-5 h-5 flex items-center justify-center bg-green-500 text-white rounded-full text-xs">✓</span>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm text-green-900">Direct Employer (SSW)</span>
+                    <span className="text-xs text-green-700">SSW partners are automatically marked as direct employers.</span>
+                  </div>
                 </div>
-              </label>
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Section 2: Hierarchy */}
@@ -111,7 +135,7 @@ export function PartnersManager({ partners, programs }: { partners: PartnerRow[]
               </div>
               <div className="form-field">
                 <label className="form-label text-ink">Program (Optional)</label>
-                <select name="program_id" className="form-select">
+                <select name="program_id" className="form-select" value={selectedProgramId} onChange={(e) => setSelectedProgramId(e.target.value)}>
                   <option value="">None</option>
                   {programs.map(p => (
                     <option key={p.id} value={p.id}>{p.name} - {p.country}</option>

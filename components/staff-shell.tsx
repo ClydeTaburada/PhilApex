@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { LayoutDashboard, Users, ClipboardList, Send, Building2, FileCheck2, Factory, Search, MessageCircle } from "lucide-react";
 import { StaffLogoutButton } from "@/components/staff-logout-button";
+import { StaffNotifications } from "@/components/staff-notifications";
 
 type Props = {
   active: "dashboard" | "messages" | "applicants" | "job-orders" | "applicant-detail" | "partners" | "accreditations" | "companies" | "deployments" | "team";
@@ -161,18 +162,21 @@ export function StaffShell({
           className="px-3 py-4 border-t space-y-3"
           style={{ borderColor: "rgba(255,255,255,.1)" }}
         >
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 relative">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
               style={{ background: "rgba(255,255,255,.15)", color: "#fff" }}
             >
               {initials}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-white truncate">{staffName}</p>
               <p className="text-[11px]" style={{ color: "rgba(255,255,255,.5)" }}>
                 {roleLabel}
               </p>
+            </div>
+            <div className="absolute right-0 top-1">
+              <StaffNotifications />
             </div>
           </div>
           <StaffLogoutButton />
@@ -209,7 +213,10 @@ export function StaffShell({
             );
           })}
         </nav>
-        <StaffLogoutButton />
+        <div className="flex items-center gap-2">
+          <StaffNotifications />
+          <StaffLogoutButton />
+        </div>
       </div>
 
       {/* ── Main content ──────────────────────────────────── */}

@@ -27,27 +27,43 @@ export type DeploymentRow = {
   updated_at: string;
 };
 
+export type JobOrderPositionRow = {
+  id: string;
+  position: string;
+  position_code: string | null;
+  needed: number;
+  processed: number;
+  salary_amount: number | null;
+  salary_currency: string | null;
+  salary_period: string | null;
+  wage_type: string | null;
+};
+
 export type JobOrderV2Row = {
   id: string;
   job_order_number: string | null;
   accreditation_id: string | null;
   foreign_partner_id: string | null;
-  position: string | null;
-  class: "direct" | "additional" | null;
-  manpower_requested: number | null;
-  jo_validity_date: string | null;
+  class: string | null;
+  date_approved: string | null;
+  valid_until: string | null;
+  status_text: string | null;
+  category: string | null;
+  reference_number: string | null;
+  parent_job_order_id: string | null;
   // Phase 1 legacy fields
   country: string | null;
   program_name: string | null;
   trade: string | null;
   gender_requirement: string | null;
-  slots_total: number;
-  slots_filled: number;
   status: string;
   created_at: string;
+  positions: JobOrderPositionRow[];
+  
   // computed
   no_hired?: number;
   jo_balance?: number;
+  manpower_requested?: number;
   accreditation_expiry_tier?: ExpiryTier;
   jo_validity_tier?: ExpiryTier;
 };
@@ -111,20 +127,21 @@ export async function getDeploymentCounts(jobOrderId: string): Promise<{
 
   if (totalErr) throw new Error("Failed to count total deployments");
 
-  // get manpower_requested
-  const { data: jo, error: joErr } = await (supabase as any)
-    .from("job_orders")
-    .select("manpower_requested")
-    .eq("id", jobOrderId)
-    .maybeSingle();
+  // get positions to calculate total manpower requested and balance
+  const { data: positions, error: posErr } = await (supabase as any)
+    .from("job_order_positions")
+    .select("needed, processed")
+    .eq("job_order_id", jobOrderId);
 
-  if (joErr) throw new Error("Failed to load job order");
-  const manpower = (jo as any)?.manpower_requested ?? 0;
+  if (posErr) throw new Error("Failed to load job order positions");
+  
+  const manpower = (positions as any[])?.reduce((sum, pos) => sum + (pos.needed || 0), 0) ?? 0;
+  const processed = (positions as any[])?.reduce((sum, pos) => sum + (pos.processed || 0), 0) ?? 0;
 
   const hired = totalCount ?? 0;
   return {
     no_hired: hired,
-    jo_balance: Math.max(0, manpower - hired),
+    jo_balance: Math.max(0, manpower - processed),
     manpower_requested: manpower,
   };
 }
@@ -134,10 +151,11 @@ export async function getAllJobOrdersV2(): Promise<JobOrderV2Row[]> {
   const { data, error } = await (supabase as any)
     .from("job_orders")
     .select(`
-      id, job_order_number, accreditation_id, foreign_partner_id, position, class,
-      manpower_requested, jo_validity_date, country, program_name, trade,
-      gender_requirement, slots_total, slots_filled, status, created_at,
-      accreditation:accreditations!accreditation_id(date_expiration)
+      id, job_order_number, accreditation_id, foreign_partner_id, class,
+      date_approved, valid_until, status_text, category, reference_number, parent_job_order_id,
+      country, program_name, trade, gender_requirement, status, created_at,
+      accreditation:accreditations!accreditation_id(date_expiration),
+      positions:job_order_positions(id, position, position_code, needed, processed, salary_amount, salary_currency, salary_period, wage_type)
     `)
     .order("created_at", { ascending: false });
 
@@ -147,10 +165,16 @@ export async function getAllJobOrdersV2(): Promise<JobOrderV2Row[]> {
     const accExp = Array.isArray(row.accreditation)
       ? row.accreditation[0]?.date_expiration
       : row.accreditation?.date_expiration;
+      
+    const manpower = (row.positions as any[])?.reduce((sum, pos) => sum + (pos.needed || 0), 0) ?? 0;
+    const processed = (row.positions as any[])?.reduce((sum, pos) => sum + (pos.processed || 0), 0) ?? 0;
+    
     return {
       ...row,
+      manpower_requested: manpower,
+      jo_balance: Math.max(0, manpower - processed),
       accreditation_expiry_tier: accExp ? getExpiryTier(accExp) : undefined,
-      jo_validity_tier: row.jo_validity_date ? getExpiryTier(row.jo_validity_date) : undefined,
+      jo_validity_tier: row.valid_until ? getExpiryTier(row.valid_until) : undefined,
     };
   }) as JobOrderV2Row[];
 }

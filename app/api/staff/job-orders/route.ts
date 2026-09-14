@@ -25,8 +25,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: firstIssue }, { status: 400 });
     }
 
-    const slotsTotal = parsed.data.slots_total ?? parsed.data.manpower_requested ?? 1;
-    const slotsFilled = parsed.data.slots_filled ?? 0;
+    const dataAny = parsed.data as any;
+    const slotsTotal = dataAny.slots_total ?? dataAny.manpower_requested ?? 1;
+    const slotsFilled = dataAny.slots_filled ?? 0;
 
     if (slotsFilled > slotsTotal) {
       return NextResponse.json({ error: "Slots filled cannot exceed slots required." }, { status: 400 });
@@ -36,10 +37,10 @@ export async function POST(request: Request) {
       job_order_number: parsed.data.job_order_number ?? null,
       accreditation_id: parsed.data.accreditation_id || null,
       foreign_partner_id: parsed.data.foreign_partner_id || null,
-      position: parsed.data.position ?? null,
+      position: dataAny.position ?? null,
       class: parsed.data.class ?? null,
-      manpower_requested: parsed.data.manpower_requested ?? null,
-      jo_validity_date: parsed.data.jo_validity_date ?? null,
+      manpower_requested: dataAny.manpower_requested ?? null,
+      jo_validity_date: dataAny.jo_validity_date ?? null,
       country: parsed.data.country ?? null,
       program_name: parsed.data.program_name ?? null,
       trade: parsed.data.trade ?? null,

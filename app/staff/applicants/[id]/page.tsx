@@ -16,7 +16,7 @@ export default async function StaffApplicantDetailPage({
   const { id } = await params;
 
   try {
-    const { applicant, documents, deployment } = await fetchApplicantDetail(id);
+    const { applicant, documents, deployment, insurance } = await fetchApplicantDetail(id);
     const jobOrders = await getAllJobOrders();
 
     return (
@@ -31,6 +31,7 @@ export default async function StaffApplicantDetailPage({
         <ApplicantDetailPanel
           applicant={applicant}
           documents={documents}
+          insurance={insurance}
           deployment={deployment}
           jobOrders={jobOrders}
           staffRole={context.staff.role}

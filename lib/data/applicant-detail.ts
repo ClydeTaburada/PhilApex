@@ -33,6 +33,7 @@ export type ApplicantDocumentDetail = {
   id: string;
   status: "missing" | "submitted" | "verified";
   file_path: string | null;
+  remarks: string | null;
   document_requirement: {
     id: number;
     doc_name: string;
@@ -42,9 +43,19 @@ export type ApplicantDocumentDetail = {
   };
 };
 
+export type InsuranceRecord = {
+  id: string;
+  insurance_type: string;
+  policy_number: string | null;
+  provider: string | null;
+  coverage_start_date: string | null;
+  coverage_end_date: string | null;
+};
+
 export async function fetchApplicantDetail(applicantId: string): Promise<{
   applicant: ApplicantDetail;
   documents: ApplicantDocumentDetail[];
+  insurance: InsuranceRecord[];
   deployment?: any;
 }> {
   const supabaseAdmin = getSupabaseAdminClient();
@@ -63,7 +74,7 @@ export async function fetchApplicantDetail(applicantId: string): Promise<{
   const { data: documents, error: documentsError } = await supabaseAdmin
     .from("applicant_documents")
     .select(
-      "id, status, file_path, document_requirement:document_requirements!inner(id, doc_name, requires_file_upload, is_conditional, condition_note)",
+      "id, status, file_path, remarks, document_requirement:document_requirements!inner(id, doc_name, requires_file_upload, is_conditional, condition_note)",
     )
     .eq("applicant_id", applicantId)
     .order("document_requirement_id", { ascending: true });
@@ -76,6 +87,7 @@ export async function fetchApplicantDetail(applicantId: string): Promise<{
     id: string;
     status: "missing" | "submitted" | "verified";
     file_path: string | null;
+    remarks: string | null;
     document_requirement:
       | {
           id: number;
@@ -102,6 +114,7 @@ export async function fetchApplicantDetail(applicantId: string): Promise<{
       id: doc.id,
       status: doc.status,
       file_path: doc.file_path,
+      remarks: doc.remarks,
       document_requirement: {
         id: relation.id,
         doc_name: relation.doc_name,
@@ -139,12 +152,25 @@ export async function fetchApplicantDetail(applicantId: string): Promise<{
     .eq("applicant_id", applicantId)
     .maybeSingle();
 
+  let insurance: InsuranceRecord[] = [];
+  try {
+    const { data: ins } = await (supabaseAdmin as any)
+      .from("insurance_records")
+      .select("id, insurance_type, policy_number, provider, coverage_start_date, coverage_end_date")
+      .eq("applicant_id", applicantId)
+      .order("created_at", { ascending: false });
+    if (ins) {
+      insurance = ins;
+    }
+  } catch (e) {}
+
   return {
     applicant: {
       ...(applicant as any),
       assigned_job_order_id: (aj as any)?.job_order_id ?? null,
     } as ApplicantDetail,
     documents: normalizedDocuments,
+    insurance,
     deployment,
   };
 }

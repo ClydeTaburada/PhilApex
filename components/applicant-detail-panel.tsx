@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 import type { StaffRole } from "@/lib/schemas";
-import type { ApplicantDetail, ApplicantDocumentDetail } from "@/lib/data/applicant-detail";
+import type { ApplicantDetail, ApplicantDocumentDetail, InsuranceRecord } from "@/lib/data/applicant-detail";
 import type { JobOrderRow } from "@/lib/data/job-orders";
 
 type Props = {
   applicant: ApplicantDetail;
   documents: ApplicantDocumentDetail[];
+  insurance?: InsuranceRecord[];
   deployment?: any;
   jobOrders?: JobOrderRow[];
   staffRole: StaffRole;
@@ -97,7 +98,7 @@ function SaveButton({
   );
 }
 
-export function ApplicantDetailPanel({ applicant, documents, deployment, jobOrders, staffRole }: Props) {
+export function ApplicantDetailPanel({ applicant, documents, insurance = [], deployment, jobOrders, staffRole }: Props) {
   // Each control gets its own save state so they don't interfere (BUG-4)
   const pipelineSave = useSaveState();
   const jobOrderSave = useSaveState();
@@ -120,6 +121,9 @@ export function ApplicantDetailPanel({ applicant, documents, deployment, jobOrde
   );
   const [docStatuses, setDocStatuses] = useState<Record<string, DocStatus>>(
     Object.fromEntries(documents.map((d) => [d.id, d.status as DocStatus])),
+  );
+  const [docRemarks, setDocRemarks] = useState<Record<string, string>>(
+    Object.fromEntries(documents.map((d) => [d.id, d.remarks ?? ""])),
   );
   const [photo2x2Url, setPhoto2x2Url] = useState<string | null>(null);
   const [assignedJobOrder, setAssignedJobOrder] = useState<string>(
@@ -177,15 +181,23 @@ export function ApplicantDetailPanel({ applicant, documents, deployment, jobOrde
   };
 
   const updateDocumentStatus = async (documentId: string, newStatus: DocStatus) => {
-    // Optimistically update UI
     setDocStatuses((prev) => ({ ...prev, [documentId]: newStatus }));
     const ok = await pipelineSave.save(
       `/api/staff/applicants/${applicant.id}/documents/${documentId}`,
       { status: newStatus },
     );
     if (!ok) {
-      // Revert on failure
       setDocStatuses((prev) => ({ ...prev, [documentId]: documents.find((d) => d.id === documentId)?.status as DocStatus ?? "missing" }));
+    }
+  };
+
+  const updateDocumentRemarks = async (documentId: string, newRemarks: string) => {
+    const ok = await pipelineSave.save(
+      `/api/staff/applicants/${applicant.id}/documents/${documentId}`,
+      { remarks: newRemarks },
+    );
+    if (!ok) {
+      setDocRemarks((prev) => ({ ...prev, [documentId]: documents.find((d) => d.id === documentId)?.remarks ?? "" }));
     }
   };
 
@@ -546,6 +558,7 @@ export function ApplicantDetailPanel({ applicant, documents, deployment, jobOrde
                 <th>Document</th>
                 <th>Condition</th>
                 <th>Status</th>
+                <th>Remarks</th>
                 <th>File</th>
               </tr>
             </thead>
@@ -600,6 +613,18 @@ export function ApplicantDetailPanel({ applicant, documents, deployment, jobOrde
                       </div>
                     </td>
                     <td>
+                      <input
+                        type="text"
+                        className="form-input text-xs"
+                        style={{ padding: ".25rem .5rem", height: "auto" }}
+                        placeholder="Add remarks..."
+                        value={docRemarks[doc.id] || ""}
+                        onChange={(e) => setDocRemarks((prev) => ({ ...prev, [doc.id]: e.target.value }))}
+                        onBlur={() => updateDocumentRemarks(doc.id, docRemarks[doc.id])}
+                        disabled={cantChange}
+                      />
+                    </td>
+                    <td>
                       {doc.file_path ? (
                         <button
                           type="button"
@@ -619,6 +644,48 @@ export function ApplicantDetailPanel({ applicant, documents, deployment, jobOrde
               })}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* ── Insurance Records ───────────────────────── */}
+      <div className="card rounded-xl overflow-hidden">
+        <div className="px-5 py-4 border-b flex justify-between items-center" style={{ borderColor: "var(--border)" }}>
+          <p className="font-semibold text-sm" style={{ color: "var(--ink)" }}>
+            Insurance Tracking
+          </p>
+          {staffRole !== "front_desk" && (
+            <button className="btn btn-sm btn-ghost" onClick={() => alert("Add Insurance modal here")}>+ Add Record</button>
+          )}
+        </div>
+        <div className="overflow-x-auto">
+          {insurance.length === 0 ? (
+            <div className="p-5 text-center text-sm" style={{ color: "var(--ink-muted)" }}>
+              No insurance records found.
+            </div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Provider</th>
+                  <th>Policy No.</th>
+                  <th>Coverage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {insurance.map((ins) => (
+                  <tr key={ins.id}>
+                    <td className="font-medium text-sm">{ins.insurance_type}</td>
+                    <td className="text-sm">{ins.provider || "—"}</td>
+                    <td className="text-sm font-mono">{ins.policy_number || "—"}</td>
+                    <td className="text-xs">
+                      {ins.coverage_start_date || "?"} to {ins.coverage_end_date || "?"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 

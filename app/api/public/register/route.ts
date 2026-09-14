@@ -195,7 +195,8 @@ export async function POST(request: Request) {
 
     const registrationInput = {
       first_name: getString(formData.get("first_name")),
-      middle_initial: getString(formData.get("middle_initial")),
+      middle_name: getString(formData.get("middle_name")),
+      no_middle_name: getBoolean(formData.get("no_middle_name")),
       last_name: getString(formData.get("last_name")),
       name_extension: getString(formData.get("name_extension")),
       date_of_birth: getString(formData.get("date_of_birth")),
@@ -208,6 +209,7 @@ export async function POST(request: Request) {
       has_passport: getBoolean(formData.get("has_passport")),
       source: getString(formData.get("source")),
       job_order_id: getString(formData.get("job_order_id")) || undefined,
+      job_fair_city: getString(formData.get("job_fair_city")) || undefined,
     };
 
     const parsed = applicantRegistrationSchema.safeParse(registrationInput);
@@ -223,14 +225,14 @@ export async function POST(request: Request) {
 
     const fullName = buildFullName({
       first_name: parsed.data.first_name,
-      middle_initial: parsed.data.middle_initial,
+      middle_initial: parsed.data.middle_name,
       last_name: parsed.data.last_name,
       name_extension: parsed.data.name_extension,
     });
 
     let occupationApplied = parsed.data.occupation_applied;
     if (parsed.data.job_order_id) {
-      const { data: jobOrderData, error: jobOrderError } = await supabaseAdmin
+      const { data: jobOrderData, error: jobOrderError } = await (supabaseAdmin as any)
         .from("job_orders")
         .select("id, trade, position, status")
         .eq("id", parsed.data.job_order_id)
@@ -323,6 +325,13 @@ export async function POST(request: Request) {
 
       return NextResponse.json({ error: "Unable to register applicant" }, { status: 500 });
     }
+
+    // Update with new fields
+    await (supabaseAdmin as any).from("applicants").update({
+      middle_name: toNullableString(parsed.data.middle_name),
+      no_middle_name: parsed.data.no_middle_name || false,
+      job_fair_city: toNullableString(parsed.data.job_fair_city),
+    }).eq("reference_id", applicantId);
 
     return NextResponse.json(
       {
