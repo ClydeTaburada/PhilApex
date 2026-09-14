@@ -56,11 +56,12 @@ BEGIN
     ), '[]'::json),
     'job_order_fill_rate', coalesce((
       SELECT json_build_object(
-        'total_requested', sum(manpower_requested),
-        'total_filled', sum(slots_filled)
+        'total_requested', sum(jop.needed),
+        'total_filled', sum(jop.processed)
       )
-      FROM public.job_orders
-      WHERE status = 'open'
+      FROM public.job_orders jo
+      LEFT JOIN public.job_order_positions jop ON jop.job_order_id = jo.id
+      WHERE jo.status = 'open'
     ), '{"total_requested": 0, "total_filled": 0}'::json)
   ) INTO result;
 
