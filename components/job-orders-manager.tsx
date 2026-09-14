@@ -42,14 +42,14 @@ export function JobOrdersManager({ jobOrderDetails, staffRole }: Props) {
   return (
     <div className="h-full flex flex-col min-h-0 overflow-hidden space-y-2.5">
       {/* 1. Fixed Header (Shrink-0) */}
-      <header className="shrink-0 flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-2.5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <ClipboardList className="w-4 h-4" />
+      <header className="shrink-0 flex items-center justify-between bg-white border border-gray-200 shadow-sm rounded-xl px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center shrink-0">
+            <ClipboardList className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">Job Orders</h1>
-            <p className="text-[11px] text-gray-500 leading-tight">Manage allocations and deployments</p>
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Job Orders</h1>
+            <p className="text-xs text-gray-500 leading-tight mt-0.5">Manage allocations and deployments</p>
           </div>
         </div>
         {staffRole !== "front_desk" && (
@@ -60,11 +60,11 @@ export function JobOrdersManager({ jobOrderDetails, staffRole }: Props) {
       </header>
 
       {/* 2. Fixed Filter Bar (Shrink-0) */}
-      <div className="shrink-0 flex items-center justify-between gap-2.5 bg-white border border-gray-200 rounded-xl px-3 py-2">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+      <div className="shrink-0 flex items-center justify-between gap-2.5 bg-white border border-gray-200 shadow-sm rounded-xl px-3 py-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input 
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary transition-shadow" 
+            className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" 
             placeholder="Search job orders..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -73,7 +73,7 @@ export function JobOrdersManager({ jobOrderDetails, staffRole }: Props) {
       </div>
 
       {/* 3. Split Pane Work Area (Flex-1 Min-H-0 Overflow-Hidden) */}
-      <main className="flex-1 min-h-0 bg-white border border-gray-200 rounded-xl flex overflow-hidden">
+      <main className="flex-1 min-h-0 bg-white border border-gray-200 shadow-sm rounded-xl flex overflow-hidden">
         
         {/* Left Pane: Master List */}
         <div className="w-80 shrink-0 border-r border-gray-200 flex flex-col bg-gray-50/30">
@@ -86,9 +86,9 @@ export function JobOrdersManager({ jobOrderDetails, staffRole }: Props) {
                 <button
                   key={jobOrder.id}
                   onClick={() => setSelectedId(jobOrder.id)}
-                  className={`w-full text-left p-3 rounded-lg border transition-all ${
+                  className={`w-full text-left p-3 rounded-xl border transition-all ${
                     isActive 
-                      ? "bg-white border-primary shadow-sm ring-1 ring-primary/20" 
+                      ? "bg-white border-primary/50 shadow-md ring-2 ring-primary/20 scale-[1.02] transform z-10 relative" 
                       : "bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-200"
                   }`}
                 >
@@ -105,9 +105,9 @@ export function JobOrdersManager({ jobOrderDetails, staffRole }: Props) {
                       ? jobOrder.positions.map(p => p.position).join(", ")
                       : jobOrder.trade ?? "Unknown"}
                   </p>
-                  <div className="mt-2 flex items-center justify-between text-[10px] font-mono text-gray-500">
+                  <div className="mt-2 flex items-center justify-between text-[11px] font-medium text-gray-500">
                     <span>{jobOrder.country}</span>
-                    <span>{deploymentCount} / {jobOrder.manpower_requested ?? 0} slots</span>
+                    <span className="bg-gray-100 px-1.5 py-0.5 rounded">{deploymentCount} / {jobOrder.manpower_requested ?? 0} slots</span>
                   </div>
                 </button>
               );

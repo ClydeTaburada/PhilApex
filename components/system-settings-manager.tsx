@@ -22,29 +22,29 @@ export function SystemSettingsManager({ partners, programs, trades, isAdmin }: P
   return (
     <div className="h-full flex flex-col min-h-0 overflow-hidden space-y-2.5">
       {/* 1. Fixed Header (Shrink-0) */}
-      <header className="shrink-0 flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-2.5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <Settings className="w-4 h-4" />
+      <header className="shrink-0 flex items-center justify-between bg-white border border-gray-200 shadow-sm rounded-xl px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center shrink-0">
+            <Settings className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">System Settings</h1>
-            <p className="text-[11px] text-gray-500 leading-tight">Manage recruitment hierarchy and global configurations</p>
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-tight">System Settings</h1>
+            <p className="text-xs text-gray-500 leading-tight mt-0.5">Manage recruitment hierarchy and global configurations</p>
           </div>
         </div>
       </header>
 
       {/* 3. Split Pane Work Area */}
-      <main className="flex-1 min-h-0 bg-white border border-gray-200 rounded-xl flex overflow-hidden">
+      <main className="flex-1 min-h-0 bg-white border border-gray-200 shadow-sm rounded-xl flex overflow-hidden">
         
         {/* Left Pane: Categories */}
         <div className="w-64 shrink-0 border-r border-gray-200 flex flex-col bg-gray-50/30">
-          <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-1">
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2">
             <button
               onClick={() => setActiveTab("partners")}
-              className={`w-full text-left flex items-center gap-2.5 p-3 rounded-lg border transition-all ${
+              className={`w-full text-left flex items-center gap-3 p-3.5 rounded-xl border transition-all ${
                 activeTab === "partners" 
-                  ? "bg-white border-primary shadow-sm ring-1 ring-primary/20 text-primary" 
+                  ? "bg-white border-primary/50 shadow-md ring-2 ring-primary/20 text-primary scale-[1.02]" 
                   : "bg-transparent border-transparent text-gray-600 hover:bg-gray-100 hover:border-gray-200"
               }`}
             >
@@ -53,9 +53,9 @@ export function SystemSettingsManager({ partners, programs, trades, isAdmin }: P
             </button>
             <button
               onClick={() => setActiveTab("programs")}
-              className={`w-full text-left flex items-center gap-2.5 p-3 rounded-lg border transition-all ${
+              className={`w-full text-left flex items-center gap-3 p-3.5 rounded-xl border transition-all ${
                 activeTab === "programs" 
-                  ? "bg-white border-primary shadow-sm ring-1 ring-primary/20 text-primary" 
+                  ? "bg-white border-primary/50 shadow-md ring-2 ring-primary/20 text-primary scale-[1.02]" 
                   : "bg-transparent border-transparent text-gray-600 hover:bg-gray-100 hover:border-gray-200"
               }`}
             >
@@ -64,9 +64,9 @@ export function SystemSettingsManager({ partners, programs, trades, isAdmin }: P
             </button>
             <button
               onClick={() => setActiveTab("trades")}
-              className={`w-full text-left flex items-center gap-2.5 p-3 rounded-lg border transition-all ${
+              className={`w-full text-left flex items-center gap-3 p-3.5 rounded-xl border transition-all ${
                 activeTab === "trades" 
-                  ? "bg-white border-primary shadow-sm ring-1 ring-primary/20 text-primary" 
+                  ? "bg-white border-primary/50 shadow-md ring-2 ring-primary/20 text-primary scale-[1.02]" 
                   : "bg-transparent border-transparent text-gray-600 hover:bg-gray-100 hover:border-gray-200"
               }`}
             >
