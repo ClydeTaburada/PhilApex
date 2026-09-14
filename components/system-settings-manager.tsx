@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Building2, Settings, FileText, Factory } from "lucide-react";
 import { PartnersManager } from "@/components/partners-manager";
 import { ProgramsManager } from "@/components/programs-manager";
