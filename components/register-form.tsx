@@ -15,6 +15,7 @@ import {
   Check,
   AlertTriangle,
   X,
+  ArrowRight,
 } from "lucide-react";
 
 type FileField = "photo_2x2_file" | "passport_file" | "birth_certificate_file";
@@ -291,9 +292,16 @@ export function RegisterForm() {
               </>
             )}
           </button>
+          <a
+            href={`/applicant/login?ref=${encodeURIComponent(referenceId)}`}
+            className="btn btn-crimson btn-md mt-2 w-full flex items-center justify-center gap-2 text-decoration-none text-xs font-bold"
+          >
+            <span>Access Applicant Portal</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
         </div>
         <p className="mt-4 text-xs" style={{ color: "var(--ink-faint)" }}>
-          Screenshot or write down this reference ID. You may need it to check your application status.
+          Screenshot or copy this reference ID. You will need it to check your status and submit documents.
         </p>
       </div>
     );
