@@ -73,7 +73,7 @@ export function RegisterForm() {
   const [programs, setPrograms] = useState<{ id: string; name: string; description: string; country: string }[]>([]);
 
   useEffect(() => {
-    fetch("/api/public/trades")
+    fetch("/api/public/trades", { cache: "no-store" })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -82,7 +82,7 @@ export function RegisterForm() {
       })
       .catch(err => console.error("Failed to load trades", err));
 
-    fetch("/api/public/programs")
+    fetch("/api/public/programs", { cache: "no-store" })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

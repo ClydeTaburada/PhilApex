@@ -4,7 +4,10 @@ import { RegisterForm } from "@/components/register-form";
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen" style={{ background: "var(--surface)" }}>
+    <div 
+      className="h-full w-full min-h-0 flex-1 overflow-y-auto overflow-x-hidden" 
+      style={{ background: "var(--surface)", scrollBehavior: "smooth" }}
+    >
       {/* Top bar */}
       <header
         className="sticky top-0 z-30 border-b"

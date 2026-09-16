@@ -60,12 +60,27 @@ export default async function DashboardOverviewPage() {
   });
 
   // 4. Fetch Top Open Job Orders for Fulfillment Chart
-  const { data: topJobOrders } = await supabase
+  const { data: topJobOrdersRaw } = await (supabase as any)
     .from("job_orders")
-    .select("job_order_number, position, manpower_requested, slots_filled")
+    .select(`
+      id, job_order_number,
+      positions:job_order_positions(position, needed, processed)
+    `)
     .eq("status", "open")
     .order("created_at", { ascending: false })
     .limit(5);
+
+  const topJobOrders = (topJobOrdersRaw || []).map((jo: any) => {
+    const posList = Array.isArray(jo.positions) ? jo.positions : jo.positions ? [jo.positions] : [];
+    const posTitle = posList.map((p: any) => p.position).filter(Boolean).join(", ") || jo.job_order_number || "Open Position";
+    const needed = posList.reduce((sum: number, p: any) => sum + (p.needed || 0), 0);
+    const processed = posList.reduce((sum: number, p: any) => sum + (p.processed || 0), 0);
+    return {
+      position: posTitle,
+      manpower_requested: needed,
+      slots_filled: processed,
+    };
+  });
 
   return (
     <StaffShell
@@ -74,12 +89,13 @@ export default async function DashboardOverviewPage() {
       staffRole={context.staff.role}
       title="Overview Dashboard"
       subtitle="High-level metrics across applicant intake and active deployments."
+      layoutMode="canonical"
     >
       <DashboardClient 
         agg={agg} 
         acc={acc} 
         soonAlerts={soonAlerts} 
-        topJobOrders={topJobOrders || []}
+        topJobOrders={topJobOrders}
         aggErrorMsg={aggError?.message} 
       />
     </StaffShell>

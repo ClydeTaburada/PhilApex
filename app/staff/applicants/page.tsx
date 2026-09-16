@@ -79,7 +79,17 @@ export default async function StaffDashboardPage({
     .order("doc_name", { ascending: true });
 
   const docOptions = (docs ?? []) as Array<{ id: number; doc_name: string }>;
-  const uniqueTrades = new Set(result.rows.map((row) => row.occupation_applied).filter(Boolean));
+  
+  const { data: tradesData } = await supabaseAdmin
+    .from("trades")
+    .select("name")
+    .order("name", { ascending: true });
+
+  const allTradesSet = new Set<string>();
+  (tradesData ?? []).forEach((t: any) => { if (t.name) allTradesSet.add(t.name); });
+  result.rows.forEach((row) => { if (row.occupation_applied) allTradesSet.add(row.occupation_applied); });
+  const tradeOptions = Array.from(allTradesSet).sort();
+
   const totalPages = Math.max(1, Math.ceil(result.total / result.pageSize));
 
   const contractAlerts = await getContractEndAlerts();
@@ -143,12 +153,19 @@ export default async function StaffDashboardPage({
 
           <select name="occupation_applied" defaultValue={normalized.occupation_applied ?? ""} className="text-xs rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5">
             <option value="">All trades</option>
-            {Array.from(uniqueTrades).map((trade) => (
-              <option key={trade as string} value={trade as string}>{trade as string}</option>
+            {tradeOptions.map((trade) => (
+              <option key={trade} value={trade}>{trade}</option>
             ))}
           </select>
 
-          <select name="source" defaultValue={normalized.source ?? ""} className="text-xs rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5">
+          <select name="missing_document" defaultValue={normalized.missing_document ?? ""} className="text-xs rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary">
+            <option value="">All requirement states</option>
+            {docOptions.map((doc) => (
+              <option key={doc.id} value={doc.doc_name}>Missing: {doc.doc_name}</option>
+            ))}
+          </select>
+
+          <select name="source" defaultValue={normalized.source ?? ""} className="text-xs rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary">
             <option value="">All sources</option>
             <option value="walk_in">Walk-in</option>
             <option value="job_fair">Job Fair</option>

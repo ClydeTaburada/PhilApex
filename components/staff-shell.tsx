@@ -1,8 +1,24 @@
+'use client';
+
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, Users, ClipboardList, Send, Building2, FileCheck2, Factory, Search, MessageCircle } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { 
+  LayoutDashboard, 
+  Users, 
+  ClipboardList, 
+  Send, 
+  Building2, 
+  FileCheck2, 
+  Factory, 
+  MessageCircle, 
+  Search,
+  Menu,
+  X
+} from "lucide-react";
+import { Topbar } from "@/components/layout/topbar";
 import { StaffLogoutButton } from "@/components/staff-logout-button";
-import { StaffNotifications } from "@/components/staff-notifications";
 
 type Props = {
   active: "dashboard" | "messages" | "applicants" | "job-orders" | "applicant-detail" | "partners" | "accreditations" | "companies" | "deployments" | "team";
@@ -89,9 +105,10 @@ export function StaffShell({
   staffRole,
   title,
   subtitle,
-  layoutMode = "legacy",
   children,
 }: Props) {
+  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const roleLabel = ROLE_LABELS[staffRole] ?? staffRole;
   const initials = staffName
     .split(" ")
@@ -100,128 +117,127 @@ export function StaffShell({
     .slice(0, 2)
     .toUpperCase();
 
+  const currentNav = NAV_ITEMS.find((item) => item.key === active);
+  const displayTitle = title || currentNav?.label || "Overview Dashboard";
+
   return (
-    <div className="h-full flex-1 flex min-h-0 overflow-hidden font-sans">
-      {/* ── Sidebar (Fixed & Compact) ───────────────────────── */}
-      <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white border-r border-gray-200 z-20">
-        {/* Logo Area */}
-        <div className="shrink-0 h-14 flex items-center px-4 border-b border-gray-200 bg-white">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/LOGO.jpg"
-              alt="Phil-Apex logo"
-              width={100}
-              height={40}
-              className="h-8 w-auto object-contain"
-              priority
-            />
-          </Link>
+    <div className="h-full w-full flex overflow-hidden bg-background select-none">
+      {/* ── Sidebar Desktop (Exact Accreditation System width & style) ── */}
+      <aside className="hidden lg:flex flex-col w-[230px] shrink-0 h-full bg-white border-r border-gray-200 z-30">
+        {/* Logo Header */}
+        <div className="px-4 py-3 border-b border-gray-200 flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center flex-shrink-0 p-1">
+              <Image
+                src="/LOGO.jpg"
+                alt="Phil-Apex logo"
+                width={32}
+                height={32}
+                className="h-5 w-auto object-contain"
+                priority
+              />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-xs font-bold text-gray-900 leading-tight truncate">Phil-Apex</h1>
+              <p className="text-[10px] text-gray-500 leading-tight truncate">Placement Agency Inc.</p>
+            </div>
+          </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
+        <nav className="flex-1 px-2.5 py-2.5 space-y-1 overflow-y-auto min-h-0">
           {NAV_ITEMS.map((item) => {
             if ((item as any).adminOnly && staffRole !== "admin") return null;
             if ((item as any).hideFromFrontDesk && staffRole === "front_desk") return null;
-            
+
             const isActive = active === item.key;
+            const Icon = item.icon;
+
             return (
               <Link
                 key={item.key}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
-                  isActive 
-                    ? "bg-primary/10 text-primary" 
+                className={`flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                  isActive
+                    ? "bg-primary/10 text-primary font-semibold"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
-                <item.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-gray-400"}`} />
-                {item.label}
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-primary" : "text-gray-400"}`} />
+                  <span className="truncate">{item.label}</span>
+                </div>
               </Link>
             );
           })}
           {active === "applicant-detail" && (
-            <div className="flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium bg-primary/10 text-primary">
-              <Search className="w-4 h-4 text-primary" />
-              Applicant Detail
+            <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold bg-primary/10 text-primary">
+              <Search className="w-4 h-4 text-primary flex-shrink-0" />
+              <span className="truncate">Applicant Detail</span>
             </div>
           )}
         </nav>
 
-        {/* User Profile Strip */}
-        <div className="shrink-0 p-3 border-t border-gray-200 bg-gray-50/50 flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-primary/20 text-primary flex items-center justify-center text-xs font-bold shrink-0 border border-primary/20">
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-gray-900 truncate">{staffName}</p>
-            <p className="text-[10px] text-gray-500 truncate">{roleLabel}</p>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <StaffNotifications />
-            <StaffLogoutButton />
-          </div>
+        {/* Bottom Logout */}
+        <div className="px-2.5 py-2.5 border-t border-gray-200 flex-shrink-0">
+          <StaffLogoutButton />
         </div>
       </aside>
 
-      {/* ── Mobile Top Bar ──────────────────────────────────── */}
-      <div className="lg:hidden shrink-0 fixed top-0 inset-x-0 z-20 flex items-center justify-between px-4 h-14 bg-white border-b border-gray-200">
-        <Link href="/">
-          <Image
-            src="/LOGO.jpg"
-            alt="Phil-Apex logo"
-            width={90}
-            height={36}
-            className="h-7 w-auto"
-          />
-        </Link>
-        <div className="flex items-center gap-2">
-          <StaffNotifications />
-          <StaffLogoutButton />
-        </div>
-      </div>
+      {/* ── Main Content Area with Fixed Topbar ───────────────────────── */}
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+        {/* Topbar */}
+        <Topbar
+          pageTitle={displayTitle}
+          userName={staffName}
+          userRole={staffRole}
+        />
 
-      {/* ── Main Content Area ───────────────────────────────── */}
-      <main className={`flex-1 min-w-0 flex flex-col ${layoutMode === "legacy" ? "overflow-y-auto" : "min-h-0"}`}>
-        {/* Mobile scroll nav spacer */}
-        <div className="lg:hidden shrink-0 h-14" />
-        <div className="lg:hidden shrink-0 overflow-x-auto border-b border-gray-200 bg-white">
-          <nav className="flex items-center gap-1 px-2 py-2 whitespace-nowrap">
+        {/* Mobile Header Toggle */}
+        <div className="lg:hidden shrink-0 h-10 bg-white border-b border-gray-200 px-3 flex items-center justify-between">
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-1 rounded-md text-gray-600 hover:bg-gray-100"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+          <span className="text-xs font-bold text-gray-800 truncate">{displayTitle}</span>
+          <div className="w-5" />
+        </div>
+
+        {/* Mobile Dropdown Nav */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden shrink-0 bg-white border-b border-gray-200 p-2 space-y-1 z-30">
             {NAV_ITEMS.map((item) => {
               if ((item as any).adminOnly && staffRole !== "admin") return null;
               if ((item as any).hideFromFrontDesk && staffRole === "front_desk") return null;
               const isActive = active === item.key;
+              const Icon = item.icon;
               return (
                 <Link
                   key={item.key}
                   href={item.href}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    isActive ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium ${
+                    isActive ? "bg-primary/10 text-primary font-semibold" : "text-gray-600 hover:bg-gray-100"
                   }`}
                 >
-                  <item.icon className="w-3.5 h-3.5 shrink-0" /> {item.label}
+                  <Icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-gray-400"}`} />
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
-          </nav>
-        </div>
-
-        {layoutMode === "legacy" ? (
-          <div className="p-4 md:p-6 max-w-6xl mx-auto w-full">
-            {title && (
-              <div className="mb-5">
-                <h1 className="text-xl font-bold text-gray-900 leading-tight">{title}</h1>
-                {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
-              </div>
-            )}
-            {children}
-          </div>
-        ) : (
-          <div className="flex-1 min-h-0 flex flex-col p-2 sm:p-3">
-            {children}
+            <div className="pt-2 border-t border-gray-100">
+              <StaffLogoutButton />
+            </div>
           </div>
         )}
-      </main>
+
+        {/* Main Viewport Container (Zero Window Scrolling) */}
+        <main className="flex-1 min-h-0 flex flex-col overflow-hidden p-3 sm:p-4">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

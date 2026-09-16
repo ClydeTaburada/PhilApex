@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Building2, Settings, FileText, Factory } from "lucide-react";
+import { Building2, Settings, FileText, Factory, CheckSquare } from "lucide-react";
 import { PartnersManager } from "@/components/partners-manager";
 import { ProgramsManager } from "@/components/programs-manager";
 import { TradesManager } from "@/components/trades-manager";
+import { RequirementsManager } from "@/components/requirements-manager";
 import { PartnerChain } from "@/components/partner-chain";
 import { EmployerInvite } from "@/components/employer-invite";
 import { buildPartnerChain } from "@/lib/data/partners";
@@ -13,11 +14,12 @@ type Props = {
   partners: any[];
   programs: any[];
   trades: any[];
+  requirements?: any[];
   isAdmin: boolean;
 };
 
-export function SystemSettingsManager({ partners, programs, trades, isAdmin }: Props) {
-  const [activeTab, setActiveTab] = useState<"partners" | "programs" | "trades">("partners");
+export function SystemSettingsManager({ partners, programs, trades, requirements = [], isAdmin }: Props) {
+  const [activeTab, setActiveTab] = useState<"partners" | "programs" | "trades" | "requirements">("partners");
 
   return (
     <div className="h-full flex flex-col min-h-0 overflow-hidden space-y-2.5">
@@ -72,6 +74,17 @@ export function SystemSettingsManager({ partners, programs, trades, isAdmin }: P
             >
               <Factory className="w-4 h-4 shrink-0" />
               <span className="font-semibold text-[13px]">Trades / Skills</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("requirements")}
+              className={`w-full text-left flex items-center gap-2.5 p-3 rounded-md border transition-colors ${
+                activeTab === "requirements" 
+                  ? "bg-primary/5 border-primary ring-1 ring-primary/20 text-primary" 
+                  : "bg-transparent border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-200"
+              }`}
+            >
+              <CheckSquare className="w-4 h-4 shrink-0" />
+              <span className="font-semibold text-[13px]">Applicant Requirements</span>
             </button>
           </div>
         </div>
@@ -173,14 +186,20 @@ export function SystemSettingsManager({ partners, programs, trades, isAdmin }: P
             )}
 
             {activeTab === "programs" && (
-              <div className="max-w-2xl">
+              <div className="w-full">
                 <ProgramsManager programs={programs} />
               </div>
             )}
 
             {activeTab === "trades" && (
-              <div className="max-w-2xl">
+              <div className="w-full">
                 <TradesManager trades={trades} />
+              </div>
+            )}
+
+            {activeTab === "requirements" && (
+              <div className="w-full">
+                <RequirementsManager requirements={requirements} />
               </div>
             )}
 

@@ -26,7 +26,8 @@ export async function GET(req: NextRequest) {
         applicant:applicants!applicant_id(full_name, cellphone_number),
         batch:batches!batch_id(
           batch_label, job_order_id,
-          job_order:job_orders!job_order_id(position, job_order_number,
+          job_order:job_orders!job_order_id(job_order_number,
+            positions:job_order_positions(position),
             partner:foreign_partners!foreign_partner_id(name)
           )
         )

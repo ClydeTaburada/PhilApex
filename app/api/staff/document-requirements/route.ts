@@ -1,26 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireStaffContext } from "@/lib/auth";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
-import { getAllTrades } from "@/lib/data/trades";
+import { getAllDocumentRequirements } from "@/lib/data/document-requirements";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
+const createRequirementSchema = z.object({
+  doc_name: z.string().trim().min(2).max(255),
+  requires_file_upload: z.boolean().default(false),
+  is_conditional: z.boolean().default(false),
+  condition_note: z.string().trim().nullable().optional(),
+});
+
 export async function GET() {
   try {
     await requireStaffContext();
-    const trades = await getAllTrades();
-    return NextResponse.json(trades, {
+    const requirements = await getAllDocumentRequirements();
+    return NextResponse.json(requirements, {
       headers: { "Cache-Control": "no-store, max-age=0" },
     });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }
-
-const createTradeSchema = z.object({
-  name: z.string().trim().min(2).max(255),
-});
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,21 +33,26 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const parsed = createTradeSchema.safeParse(body);
+    const parsed = createRequirementSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
     const supabase = getSupabaseAdminClient();
     const { data, error } = await (supabase as any)
-      .from("trades")
-      .insert({ name: parsed.data.name })
+      .from("document_requirements")
+      .insert({
+        doc_name: parsed.data.doc_name,
+        requires_file_upload: parsed.data.requires_file_upload,
+        is_conditional: parsed.data.is_conditional,
+        condition_note: parsed.data.condition_note || null,
+      })
       .select()
       .single();
 
     if (error) {
-      if (error.code === '23505') {
-        return NextResponse.json({ error: "Trade already exists" }, { status: 409 });
+      if (error.code === "23505") {
+        return NextResponse.json({ error: "Document requirement already exists" }, { status: 409 });
       }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

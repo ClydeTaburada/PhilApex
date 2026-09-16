@@ -27,8 +27,8 @@ const themeInitScript = `
         'ocean': { rgb: '2 132 199', hover: '3 105 161' },
       };
       if (saved && map[saved]) {
-        document.documentElement.style.setProperty('--color-primary', map[saved].rgb);
-        document.documentElement.style.setProperty('--color-primary-hover', map[saved].hover);
+        document.documentElement.style.setProperty('--color-primary', 'rgb(' + map[saved].rgb + ')');
+        document.documentElement.style.setProperty('--color-primary-hover', 'rgb(' + map[saved].hover + ')');
       }
     } catch (e) {}
   })();

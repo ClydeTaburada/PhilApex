@@ -43,12 +43,15 @@ export async function getCompanyList(): Promise<CompanyListRow[]> {
       program:programs!program_id(name, country),
       parent:foreign_partners!parent_partner_id(name),
       accreditation:accreditations!principal_partner_id(status, date_expiration),
-      job_orders:job_orders!foreign_partner_id(id, manpower_requested)
+      job_orders:job_orders!foreign_partner_id(
+        id,
+        positions:job_order_positions(needed)
+      )
     `)
     .eq("is_final_employer", true)
     .order("name", { ascending: true });
 
-  if (pErr) throw new Error("Failed to load company list");
+  if (pErr) throw new Error("Failed to load company list: " + pErr.message);
 
   // For each partner get deployment counts
   const results: CompanyListRow[] = [];
@@ -58,7 +61,11 @@ export async function getCompanyList(): Promise<CompanyListRow[]> {
     const parent = Array.isArray(p.parent) ? p.parent[0] : p.parent;
     const jos: any[] = Array.isArray(p.job_orders) ? p.job_orders : p.job_orders ? [p.job_orders] : [];
 
-    const slotRequested = jos.reduce((sum: number, jo: any) => sum + (jo.manpower_requested ?? 0), 0);
+    const slotRequested = jos.reduce((sum: number, jo: any) => {
+      const posList = Array.isArray(jo.positions) ? jo.positions : jo.positions ? [jo.positions] : [];
+      const posSum = posList.reduce((s: number, pos: any) => s + (pos.needed || 0), 0);
+      return sum + posSum;
+    }, 0);
     const joIds = jos.map((j: any) => j.id);
 
     let totalHired = 0;
@@ -108,12 +115,15 @@ export async function getCompanyDetail(partnerId: string): Promise<CompanyDeploy
       applicant:applicants!applicant_id(full_name),
       batch:batches!batch_id(
         batch_label, job_order_id,
-        job_order:job_orders!job_order_id(job_order_number, position, foreign_partner_id)
+        job_order:job_orders!job_order_id(
+          job_order_number, foreign_partner_id,
+          positions:job_order_positions(position)
+        )
       )
     `)
     .order("hired_date", { ascending: false });
 
-  if (error) throw new Error("Failed to load company detail");
+  if (error) throw new Error("Failed to load company detail: " + error.message);
 
   // Filter to this partner's job orders
   const rows = ((data ?? []) as any[]).filter((row: any) => {
@@ -127,6 +137,9 @@ export async function getCompanyDetail(partnerId: string): Promise<CompanyDeploy
   return rows.map((row: any) => {
     const batchData = Array.isArray(row.batch) ? row.batch[0] : row.batch;
     const joData = Array.isArray(batchData?.job_order) ? batchData?.job_order[0] : batchData?.job_order;
+    const posList = Array.isArray(joData?.positions) ? joData.positions : joData?.positions ? [joData.positions] : [];
+    const positionNames = posList.map((p: any) => p.position).filter(Boolean).join(", ");
+
     return {
       deployment_id: row.id,
       applicant_id: row.applicant_id,
@@ -135,7 +148,7 @@ export async function getCompanyDetail(partnerId: string): Promise<CompanyDeploy
       batch_label: batchData?.batch_label ?? "",
       job_order_id: batchData?.job_order_id ?? "",
       job_order_number: joData?.job_order_number ?? null,
-      position: joData?.position ?? null,
+      position: positionNames || "—",
       hired_date: row.hired_date,
       entry_date: row.entry_date,
       deployment_end_date: row.deployment_end_date,

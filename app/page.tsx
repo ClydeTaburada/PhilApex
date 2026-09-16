@@ -1,24 +1,60 @@
 import Link from "next/link";
 import Image from "next/image";
+import {
+  Ship,
+  Car,
+  HardHat,
+  Cpu,
+  Sprout,
+  Factory,
+  Handshake,
+  Star,
+  ShieldCheck,
+  Briefcase,
+  Heart,
+  Globe2,
+  Globe,
+  Target,
+  Compass,
+  Trophy,
+  FolderOpen,
+  AlertTriangle,
+  ArrowRight,
+  ArrowDown,
+  Phone,
+  Smartphone,
+  Mail,
+  CheckCircle2,
+} from "lucide-react";
+
+/* ── SVG Brand Icons ────────────────────────────────────────── */
+
+function FacebookIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
 
 /* ── Data ───────────────────────────────────────────────────── */
 
 const POSITIONS = [
-  { title: "Ship Building Workers", jp: "造船労働者", icon: "🚢" },
-  { title: "Automotive Industry Workers", jp: "自動車産業労働者", icon: "🚗" },
-  { title: "Civil Construction Workers", jp: "土木建設労働者", icon: "🏗️" },
-  { title: "Semi-conductor Factory Workers", jp: "半導体工場労働者", icon: "💻" },
-  { title: "Agriculture Workers", jp: "農業労働者", icon: "🌾" },
-  { title: "Food Processing Factory Workers", jp: "食品加工工場労働者", icon: "🏭" },
+  { title: "Ship Building Workers", jp: "造船労働者", Icon: Ship },
+  { title: "Automotive Industry Workers", jp: "自動車産業労働者", Icon: Car },
+  { title: "Civil Construction Workers", jp: "土木建設労働者", Icon: HardHat },
+  { title: "Semi-conductor Factory Workers", jp: "半導体工場労働者", Icon: Cpu },
+  { title: "Agriculture Workers", jp: "農業労働者", Icon: Sprout },
+  { title: "Food Processing Factory Workers", jp: "食品加工工場労働者", Icon: Factory },
 ];
 
 const CORE_VALUES = [
-  { en: "Integrity", jp: "誠実さ", icon: "🤝", desc: "Upholding honesty and transparency in every interaction." },
-  { en: "Excellence", jp: "卓越性", icon: "⭐", desc: "Striving for the highest quality in recruitment services." },
-  { en: "Commitment", jp: "コミットメント", icon: "💪", desc: "Dedicated to our workers' success and wellbeing." },
-  { en: "Professionalism", jp: "プロフェッショナリズム", icon: "👔", desc: "Conducting business with skill, competence, and care." },
-  { en: "Compassion", jp: "思いやり", icon: "❤️", desc: "Treating every applicant with dignity and respect." },
-  { en: "Partnership", jp: "パートナーシップ", icon: "🌏", desc: "Building lasting relationships with global employers." },
+  { en: "Integrity", jp: "誠実さ", Icon: Handshake, desc: "Upholding honesty and transparency in every interaction." },
+  { en: "Excellence", jp: "卓越性", Icon: Star, desc: "Striving for the highest quality in recruitment services." },
+  { en: "Commitment", jp: "コミットメント", Icon: ShieldCheck, desc: "Dedicated to our workers' success and wellbeing." },
+  { en: "Professionalism", jp: "プロフェッショナリズム", Icon: Briefcase, desc: "Conducting business with skill, competence, and care." },
+  { en: "Compassion", jp: "思いやり", Icon: Heart, desc: "Treating every applicant with dignity and respect." },
+  { en: "Partnership", jp: "パートナーシップ", Icon: Globe2, desc: "Building lasting relationships with global employers." },
 ];
 
 const TITP_REQUIREMENTS = [
@@ -73,7 +109,10 @@ const RECRUITMENT_STEPS = [
 
 export default function Home() {
   return (
-    <div className="landing-page" style={{ background: "var(--surface)" }}>
+    <div 
+      className="landing-page h-full w-full min-h-0 flex-1 overflow-y-auto overflow-x-hidden" 
+      style={{ background: "var(--surface)", scrollBehavior: "smooth" }}
+    >
       {/* ═══════════ HEADER ═══════════ */}
       <header className="landing-header">
         <div className="landing-header-inner">
@@ -120,16 +159,21 @@ export default function Home() {
             フィル エイペックス プレイスメント エージェンシーは、熟練したフィリピン人労働者と世界中の評判の良い雇用主を結びつけます。
           </p>
           <div className="landing-hero-actions">
-            <Link href="/register" className="btn btn-lg landing-cta-white-btn landing-pulse-btn" id="cta-hero-apply">
-              ✍ Apply Now — Start Your Journey
+            <Link href="/register" className="btn btn-lg landing-cta-white-btn landing-pulse-btn inline-flex items-center gap-2" id="cta-hero-apply">
+              <span>Apply Now — Start Your Journey</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
-            <a href="#programs" className="btn btn-ghost btn-lg">
-              View Programs ↓
+            <a href="#programs" className="btn btn-ghost btn-lg inline-flex items-center gap-2">
+              <span>View Programs</span>
+              <ArrowDown className="w-4 h-4" />
             </a>
           </div>
-          <p className="landing-hero-notice">
-            ⚠ Phil-Apex Placement Agency Inc. does <strong>NOT</strong> collect placement fees from applicants.
-          </p>
+          <div className="mt-3">
+            <div className="landing-hero-notice inline-flex items-center justify-center gap-1.5 bg-black/20 px-3.5 py-1.5 rounded-full border border-white/10">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <span>Phil-Apex Placement Agency Inc. does <strong>NOT</strong> collect placement fees from applicants.</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -171,7 +215,9 @@ export default function Home() {
           {/* Mission / Vision / Goals */}
           <div className="landing-mvg-grid">
             <div className="landing-mvg-card">
-              <div className="landing-mvg-icon">🎯</div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-3.5">
+                <Target className="w-6 h-6" />
+              </div>
               <h3 className="landing-mvg-title">Vision <span className="landing-jp-label">ビジョン</span></h3>
               <p className="landing-mvg-text">
                 To be a globally trusted manpower agency, recognized for excellence,
@@ -182,7 +228,9 @@ export default function Home() {
               </p>
             </div>
             <div className="landing-mvg-card">
-              <div className="landing-mvg-icon">🚀</div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-3.5">
+                <Compass className="w-6 h-6" />
+              </div>
               <h3 className="landing-mvg-title">Mission <span className="landing-jp-label">ミッション</span></h3>
               <p className="landing-mvg-text">
                 To connect skilled Filipinos with trusted employers worldwide, providing
@@ -193,7 +241,9 @@ export default function Home() {
               </p>
             </div>
             <div className="landing-mvg-card">
-              <div className="landing-mvg-icon">🏆</div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-3.5">
+                <Trophy className="w-6 h-6" />
+              </div>
               <h3 className="landing-mvg-title">Goals <span className="landing-jp-label">目標</span></h3>
               <p className="landing-mvg-text">
                 Deliver ethical and efficient recruitment. Build lasting partnerships
@@ -216,19 +266,25 @@ export default function Home() {
           </div>
           <h2 className="landing-section-title" style={{ color: "#fff" }}>Open Positions for Japan</h2>
           <div className="landing-positions-grid">
-            {POSITIONS.map((pos) => (
-              <div key={pos.title} className="landing-position-card">
-                <div className="landing-position-icon">{pos.icon}</div>
-                <div>
-                  <p className="landing-position-title">{pos.title}</p>
-                  <p className="landing-position-jp">{pos.jp}</p>
+            {POSITIONS.map((pos) => {
+              const Icon = pos.Icon;
+              return (
+                <div key={pos.title} className="landing-position-card group">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 group-hover:bg-white/20 transition-colors flex items-center justify-center text-amber-300 shrink-0">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="landing-position-title">{pos.title}</p>
+                    <p className="landing-position-jp">{pos.jp}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div style={{ textAlign: "center", marginTop: 32 }}>
-            <Link href="/register" className="btn btn-crimson btn-lg" id="cta-positions-apply">
-              Apply for a Position →
+            <Link href="/register" className="btn btn-crimson btn-lg inline-flex items-center gap-2" id="cta-positions-apply">
+              <span>Apply for a Position</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -250,7 +306,10 @@ export default function Home() {
               <div className="landing-program-header" style={{ background: "var(--navy)" }}>
                 <span className="landing-program-badge">TITP</span>
                 <h3 className="landing-program-title">Technical Intern Training Program</h3>
-                <p className="landing-program-country">🇯🇵 Japan • 3-year program</p>
+                <p className="landing-program-country inline-flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-blue-200" />
+                  <span>Japan • 3-year program</span>
+                </p>
               </div>
               <div className="landing-program-body">
                 <h4 className="landing-req-heading">Qualifications</h4>
@@ -271,8 +330,9 @@ export default function Home() {
                   <span className="landing-id-chip">PhilHealth</span>
                   <span className="landing-id-chip">SSS</span>
                 </div>
-                <div className="landing-folder-note">
-                  📁 All documents must be placed in a <strong>long white folder with fastener</strong>.
+                <div className="landing-folder-note flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>All documents must be placed in a <strong>long white folder with fastener</strong>.</span>
                 </div>
               </div>
             </div>
@@ -282,7 +342,10 @@ export default function Home() {
               <div className="landing-program-header" style={{ background: "var(--crimson)" }}>
                 <span className="landing-program-badge">SSW</span>
                 <h3 className="landing-program-title">Specified Skilled Worker</h3>
-                <p className="landing-program-country">🇯🇵 Japan • 5-year program</p>
+                <p className="landing-program-country inline-flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-red-200" />
+                  <span>Japan • 5-year program</span>
+                </p>
               </div>
               <div className="landing-program-body">
                 <h4 className="landing-req-heading">Qualifications</h4>
@@ -303,8 +366,9 @@ export default function Home() {
                   <span className="landing-id-chip">PhilHealth</span>
                   <span className="landing-id-chip">SSS</span>
                 </div>
-                <div className="landing-folder-note">
-                  📁 All documents must be placed in a <strong>long white folder with fastener</strong>.
+                <div className="landing-folder-note flex items-center gap-2">
+                  <FolderOpen className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>All documents must be placed in a <strong>long white folder with fastener</strong>.</span>
                 </div>
               </div>
             </div>
@@ -337,8 +401,9 @@ export default function Home() {
             <p style={{ color: "var(--ink-muted)", fontSize: ".875rem", marginBottom: 16 }}>
               Ready to start? We look forward to assisting you throughout the process. <strong>Good luck!</strong>
             </p>
-            <Link href="/register" className="btn btn-crimson btn-lg" id="cta-process-apply">
-              Start Your Application →
+            <Link href="/register" className="btn btn-crimson btn-lg inline-flex items-center gap-2" id="cta-process-apply">
+              <span>Start Your Application</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -350,15 +415,20 @@ export default function Home() {
           <div className="landing-section-label">Core Values / コアバリュー</div>
           <h2 className="landing-section-title">What We Stand For</h2>
           <div className="landing-values-grid">
-            {CORE_VALUES.map((v) => (
-              <div key={v.en} className="landing-value-card">
-                <div className="landing-value-icon">{v.icon}</div>
-                <h4 className="landing-value-title">
-                  {v.en} <span className="landing-jp-label">{v.jp}</span>
-                </h4>
-                <p className="landing-value-desc">{v.desc}</p>
-              </div>
-            ))}
+            {CORE_VALUES.map((v) => {
+              const Icon = v.Icon;
+              return (
+                <div key={v.en} className="landing-value-card">
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-3.5">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h4 className="landing-value-title">
+                    {v.en} <span className="landing-jp-label">{v.jp}</span>
+                  </h4>
+                  <p className="landing-value-desc">{v.desc}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -373,8 +443,10 @@ export default function Home() {
             Take the first step toward your international career.
             Apply online now — it only takes a few minutes.
           </p>
-          <Link href="/register" className="btn btn-lg landing-cta-white-btn" id="cta-banner-apply">
-            ✍ Apply Now — Free of Charge
+          <Link href="/register" className="btn btn-lg landing-cta-white-btn inline-flex items-center gap-2" id="cta-banner-apply">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>Apply Now — Free of Charge</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>
@@ -400,11 +472,23 @@ export default function Home() {
             </div>
             <div>
               <h4 className="landing-footer-heading">Contact Us</h4>
-              <ul className="landing-footer-contacts">
-                <li>📞 (+63) 432-6811</li>
-                <li>📱 (+63) 917-300-2107</li>
-                <li>📱 (+63) 928-500-8229</li>
-                <li>📧 philapexbacolod@gmail.com</li>
+              <ul className="landing-footer-contacts space-y-2 text-xs">
+                <li className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                  <span>(+63) 432-6811</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Smartphone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                  <span>(+63) 917-300-2107</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Smartphone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                  <span>(+63) 928-500-8229</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                  <span>philapexbacolod@gmail.com</span>
+                </li>
               </ul>
             </div>
             <div>
@@ -419,9 +503,10 @@ export default function Home() {
                   href="https://www.facebook.com/profile.php?id=61575052498498"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="landing-footer-social"
+                  className="landing-footer-social inline-flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
                 >
-                  📘 Phil-Apex Placement Agency, Inc.
+                  <FacebookIcon className="w-4 h-4 text-blue-500 shrink-0" />
+                  <span>Phil-Apex Placement Agency, Inc.</span>
                 </a>
               </div>
             </div>

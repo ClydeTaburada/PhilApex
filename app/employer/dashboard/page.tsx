@@ -52,7 +52,8 @@ export default async function EmployerDashboardPage() {
     const { data } = await (supabase as any)
       .from("job_orders")
       .select(`
-        id, job_order_number, position, manpower_requested, jo_validity_date, status,
+        id, job_order_number, valid_until, status,
+        positions:job_order_positions(position, needed),
         accreditation:accreditations(accreditation_id_dmw)
       `)
       .eq("foreign_partner_id", session.partner_id)
@@ -74,7 +75,7 @@ export default async function EmployerDashboardPage() {
         batch:batches!inner(
           batch_label,
           job_order:job_orders!inner(
-            id, position, foreign_partner_id
+            id, foreign_partner_id
           )
         ),
         applicant:applicants!inner(
@@ -100,10 +101,15 @@ export default async function EmployerDashboardPage() {
   // ── Compute Job Order Stats ──────────────────────────────
   const jobOrdersWithStats = jobOrders.map((jo: any) => {
     const hired = deployments.filter(d => d.batch?.job_order?.id === jo.id).length;
+    const posList = Array.isArray(jo.positions) ? jo.positions : jo.positions ? [jo.positions] : [];
+    const needed = posList.reduce((sum: number, p: any) => sum + (p.needed || 0), 0);
+    const positionNames = posList.map((p: any) => p.position).filter(Boolean).join(", ") || "—";
     return {
       ...jo,
+      position: positionNames,
+      manpower_requested: needed,
       no_hired: hired,
-      balance: (jo.manpower_requested || 0) - hired,
+      balance: Math.max(0, needed - hired),
     };
   });
 

@@ -4,11 +4,15 @@ import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { upsertProgramSchema } from "@/lib/schemas";
 import { getAllPrograms } from "@/lib/data/programs";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     await requireStaffContext();
     const programs = await getAllPrograms();
-    return NextResponse.json(programs);
+    return NextResponse.json(programs, {
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

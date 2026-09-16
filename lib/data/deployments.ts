@@ -30,7 +30,8 @@ export async function getDeploymentMonitoringRows(q?: string): Promise<Deploymen
       batch:batches!batch_id(
         batch_label, job_order_id,
         job_order:job_orders!job_order_id(
-          job_order_number, position,
+          job_order_number,
+          positions:job_order_positions(position),
           foreign_partner_id,
           partner:foreign_partners!foreign_partner_id(name, program_id, program:programs!program_id(name, country))
         )
@@ -43,7 +44,7 @@ export async function getDeploymentMonitoringRows(q?: string): Promise<Deploymen
   }
 
   const { data, error } = await query;
-  if (error) throw new Error("Failed to load deployment monitoring rows");
+  if (error) throw new Error("Failed to load deployment monitoring rows: " + error.message);
 
   return ((data ?? []) as any[]).map((row) => {
     const applicant = Array.isArray(row.applicant) ? row.applicant[0] : row.applicant;
@@ -51,6 +52,8 @@ export async function getDeploymentMonitoringRows(q?: string): Promise<Deploymen
     const jo = Array.isArray(batch?.job_order) ? batch.job_order[0] : batch?.job_order;
     const partner = Array.isArray(jo?.partner) ? jo.partner[0] : jo?.partner;
     const program = Array.isArray(partner?.program) ? partner.program[0] : partner?.program;
+    const posList = Array.isArray(jo?.positions) ? jo.positions : jo?.positions ? [jo.positions] : [];
+    const posText = posList.map((p: any) => p.position).filter(Boolean).join(", ");
 
     return {
       id: row.id,
@@ -60,7 +63,7 @@ export async function getDeploymentMonitoringRows(q?: string): Promise<Deploymen
       batch_label: batch?.batch_label ?? null,
       job_order_id: batch?.job_order_id ?? null,
       job_order_number: jo?.job_order_number ?? null,
-      position: jo?.position ?? null,
+      position: posText || null,
       foreign_partner_name: partner?.name ?? null,
       program_name: program?.name ?? null,
       country: program?.country ?? null,

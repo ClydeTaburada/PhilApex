@@ -1,22 +1,37 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { LogOut, Loader2 } from "lucide-react";
 
 export function LogoutButton() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = async () => {
-    await fetch("/api/applicant/logout", { method: "POST" });
-    router.push("/applicant/login");
-    router.refresh();
+    setLoading(true);
+    try {
+      await fetch("/api/applicant/logout", { method: "POST" });
+      router.push("/applicant/login");
+      router.refresh();
+    } catch {
+      setLoading(false);
+    }
   };
 
   return (
     <button 
       onClick={handleLogout}
-      className="text-[10px] font-bold text-red-400 uppercase tracking-widest bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-4 py-2 rounded-xl transition-all active:scale-95"
+      disabled={loading}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-red-600 hover:bg-red-50 border border-gray-200 transition-colors shadow-xs disabled:opacity-50"
+      title="Sign out of applicant portal"
     >
-      Sign Out
+      {loading ? (
+        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+      ) : (
+        <LogOut className="w-3.5 h-3.5" />
+      )}
+      <span>Sign Out</span>
     </button>
   );
 }

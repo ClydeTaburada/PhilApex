@@ -44,28 +44,28 @@ export function JobOrderOverviewTable({ jobOrderDetails, staffRole }: Props) {
   const [accreditations, setAccreditations] = useState<{ id: string; accreditation_id_dmw: string }[]>([]);
 
   useEffect(() => {
-    fetch("/api/public/trades")
+    fetch("/api/public/trades", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setTrades(data.map((d) => d.name));
       })
       .catch((err) => console.error(err));
 
-    fetch("/api/staff/programs")
+    fetch("/api/staff/programs", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setPrograms(data);
       })
       .catch((err) => console.error(err));
 
-    fetch("/api/staff/partners")
+    fetch("/api/staff/partners", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setPartners(data);
       })
       .catch((err) => console.error(err));
 
-    fetch("/api/staff/accreditations")
+    fetch("/api/staff/accreditations", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setAccreditations(data);

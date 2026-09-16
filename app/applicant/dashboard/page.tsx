@@ -5,6 +5,28 @@ import { LogoutButton } from "./logout-button";
 import { DocumentUploader } from "./document-uploader";
 import { ProfileEditor } from "./profile-editor";
 import { ChatWidget } from "@/components/chat-widget";
+import {
+  UserCheck,
+  FileCheck2,
+  Building2,
+  GraduationCap,
+  Handshake,
+  Plane,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  ShieldCheck,
+  FileText,
+  Check,
+  ExternalLink,
+  Phone,
+  Mail,
+  MapPin,
+  User,
+  Calendar,
+  Briefcase,
+  AlertTriangle,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -25,14 +47,15 @@ export default async function ApplicantDashboardPage() {
 
   if (!applicant) redirect("/applicant/login");
 
-  // Fetch Documents
+  // Fetch Documents with Requirements
   const { data: docs } = await (supabase as any)
     .from("applicant_documents")
     .select(`
-      id, status, file_path,
-      document_requirement:document_requirements(doc_name, requires_file_upload)
+      id, status, file_path, remarks,
+      document_requirement:document_requirements(id, doc_name, requires_file_upload, is_conditional, condition_note)
     `)
-    .eq("applicant_id", session.applicant_id);
+    .eq("applicant_id", session.applicant_id)
+    .order("document_requirement_id", { ascending: true });
 
   // Fetch Deployment / Job Order if matched
   let deployment = null;
@@ -52,33 +75,16 @@ export default async function ApplicantDashboardPage() {
       .maybeSingle();
     deployment = data;
   } catch {
-    try {
-      const { data } = await (supabase as any)
-        .from("deployments")
-        .select(`
-          id,
-          batch:batches(
-            job_order:job_orders(
-              id, program_name, trade_name, country, position,
-              partner:foreign_partners!principal_partner_id(name)
-            )
-          )
-        `)
-        .eq("applicant_id", session.applicant_id)
-        .maybeSingle();
-      deployment = data;
-    } catch {
-      // Fallback if columns don't exist yet
-    }
+    // fallback if columns differ
   }
 
   const stages = [
-    { key: "registered", label: "Registered", icon: "📝" },
-    { key: "documents_complete", label: "Docs Complete", icon: "📄" },
-    { key: "dmw_registered", label: "DMW Registered", icon: "🏛️" },
-    { key: "peos_certified", label: "PEOS Certified", icon: "🎓" },
-    { key: "matched", label: "Matched", icon: "🤝" },
-    { key: "deployed", label: "Deployed", icon: "✈️" },
+    { key: "registered",         label: "Registered",      Icon: UserCheck },
+    { key: "documents_complete", label: "Docs Complete",   Icon: FileCheck2 },
+    { key: "dmw_registered",     label: "DMW Registered",  Icon: Building2 },
+    { key: "peos_certified",     label: "PEOS Certified",  Icon: GraduationCap },
+    { key: "matched",            label: "Matched",         Icon: Handshake },
+    { key: "deployed",           label: "Deployed",        Icon: Plane },
   ];
   const currentStageIndex = stages.findIndex(s => s.key === applicant.current_pipeline_stage);
 
@@ -103,137 +109,296 @@ export default async function ApplicantDashboardPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-surface">
-
-      {/* ═══════════ STICKY HEADER ═══════════ */}
-      <div className="px-6 py-4 flex justify-between items-center sticky top-0 z-50 bg-white/40 backdrop-blur-xl border-b border-white/40 shadow-sm mt-4 mx-4 rounded-2xl transition-all duration-300">
-        <div>
-          <p className="text-xs font-black uppercase tracking-widest text-navy/80">Applicant Portal</p>
-          <p className="text-sm font-bold truncate max-w-[200px] text-navy">{applicant.full_name}</p>
-        </div>
-        <LogoutButton />
-      </div>
-
-      <div className="p-4 flex-1 overflow-y-auto pb-20 max-w-7xl mx-auto w-full">
+    <div className="flex-1 flex flex-col min-h-0 bg-slate-50/60 pb-12">
+      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 space-y-5 flex-1 min-h-0">
         
-        {/* CSS Columns layout. Everything inside will flow top-to-bottom, wrapping to the next column on desktop */}
-        <div className="columns-1 lg:columns-2 gap-5 space-y-5">
-          
-          {/* 1. PIPELINE PROGRESS (Rendered first for mobile) */}
-          <div className="break-inside-avoid w-full bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/50">
-            <p className="text-xs font-bold uppercase tracking-widest mb-6 text-navy">Application Progress</p>
-            <div className="flex flex-col gap-4">
-              {stages.map((stage, idx) => {
-                const isPast = idx < currentStageIndex;
-                const isCurrent = idx === currentStageIndex;
+        {/* ── 1. Applicant Overview Banner ─────────────────────────────────── */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Avatar & Key Details */}
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-14 h-14 rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 shrink-0 flex items-center justify-center shadow-xs">
+                {profilePictureUrl ? (
+                  <img src={profilePictureUrl} alt={applicant.full_name} className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-7 h-7 text-gray-400" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-lg font-bold text-gray-900 tracking-tight truncate">
+                    {applicant.full_name}
+                  </h1>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-primary/10 text-primary border border-primary/20">
+                    {applicant.reference_number ?? applicant.id.slice(0, 8)}
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+                    {applicant.current_pipeline_stage?.replace(/_/g, " ")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-gray-600 mt-1 flex-wrap">
+                  <span className="font-semibold text-gray-900 flex items-center gap-1">
+                    <Briefcase className="w-3.5 h-3.5 text-gray-400" />
+                    <span>{applicant.occupation_applied || "General Applicant"}</span>
+                  </span>
+                  <span>•</span>
+                  <span>{applicant.cellphone_number}</span>
+                  {applicant.email && (
+                    <>
+                      <span>•</span>
+                      <span className="text-gray-500 truncate max-w-[200px]">{applicant.email}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
 
-                let dotClass = "bg-slate-200 border-slate-300";
-                if (isPast) dotClass = "bg-green-500 border-green-600 shadow-sm";
-                if (isCurrent) dotClass = "animate-pulse border-4 bg-crimson border-crimson/30 shadow-md";
-
-                return (
-                  <div key={stage.key} className="flex items-center gap-4 group cursor-default">
-                    <div className={`w-4 h-4 rounded-full border shadow-inner z-10 transition-all duration-300 group-hover:scale-110 ${dotClass}`}></div>
-                    <span className="text-lg mr-2 drop-shadow-sm transition-transform duration-300 group-hover:scale-110">{stage.icon}</span>
-                    <p className={`text-sm font-bold transition-colors ${isCurrent ? 'text-black' : isPast ? 'text-slate-700' : 'text-slate-400'}`}>{stage.label}</p>
-                  </div>
-                );
-              })}
+            {/* Metrics & Logout */}
+            <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+              <div className={`px-3 py-1.5 rounded-xl border text-xs flex items-center gap-1.5 font-semibold ${
+                missingDocs.length > 0 
+                  ? "bg-red-50 text-red-700 border-red-200" 
+                  : "bg-emerald-50 text-emerald-700 border-emerald-200"
+              }`}>
+                <FileCheck2 className="w-3.5 h-3.5 shrink-0" />
+                <span>{verifiedDocs.length}/{(docs || []).length} Verified</span>
+                {missingDocs.length > 0 && (
+                  <span className="text-[10px] bg-red-200/80 text-red-800 px-1.5 py-0.2 rounded font-bold">
+                    {missingDocs.length} missing
+                  </span>
+                )}
+              </div>
+              <LogoutButton />
             </div>
           </div>
+        </div>
 
-          {/* 2. MISSING DOCUMENTS / UPLOAD */}
-          <div className="break-inside-avoid w-full bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/50">
-            <div className="flex items-center justify-between mb-5">
-              <p className="text-xs font-bold uppercase tracking-widest text-navy">Required Actions</p>
-              <span className={`text-xs font-black px-3 py-1.5 rounded-full ${missingDocs.length > 0 ? 'bg-red-100 text-red-600 shadow-sm' : 'bg-green-100 text-green-600 shadow-sm'}`}>
-                {missingDocs.length > 0 ? `${missingDocs.length} Missing` : "All Done"}
-              </span>
+        {/* ── 2. Pipeline Progress Stepper ─────────────────────────────────── */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-700 mb-4">
+            Application Pipeline Milestones
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {stages.map((stage, idx) => {
+              const isPast = idx < currentStageIndex;
+              const isCurrent = idx === currentStageIndex;
+              const StepIcon = stage.Icon;
+
+              return (
+                <div
+                  key={stage.key}
+                  className={`p-3 rounded-xl border flex flex-col items-center text-center transition-all ${
+                    isCurrent
+                      ? "bg-primary/5 border-primary shadow-xs ring-1 ring-primary/30"
+                      : isPast
+                      ? "bg-emerald-50/40 border-emerald-200"
+                      : "bg-gray-50/60 border-gray-200 opacity-60"
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 shadow-xs ${
+                    isCurrent
+                      ? "bg-primary text-primary-foreground"
+                      : isPast
+                      ? "bg-emerald-600 text-white"
+                      : "bg-gray-200 text-gray-500"
+                  }`}>
+                    {isPast ? <Check className="w-4 h-4 stroke-[3]" /> : <StepIcon className="w-4 h-4" />}
+                  </div>
+                  <p className="text-xs font-bold text-gray-900 leading-tight">
+                    {stage.label}
+                  </p>
+                  <span className="text-[10px] font-semibold mt-1">
+                    {isPast ? (
+                      <span className="text-emerald-700">Completed</span>
+                    ) : isCurrent ? (
+                      <span className="text-primary font-bold">In Progress</span>
+                    ) : (
+                      <span className="text-gray-400">Upcoming</span>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── 3. Two-Column Dashboard Content ─────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          
+          {/* LEFT COLUMN: Documents Checklist & Deployment (8 cols) */}
+          <div className="lg:col-span-8 space-y-5">
+            
+            {/* Required Documents Checklist */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="p-4 border-b border-gray-200 bg-gray-50/70 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-gray-900">
+                      Required Documents Checklist
+                    </h2>
+                    <p className="text-[11px] text-gray-500">
+                      Standard overseas compliance documentation requirements
+                    </p>
+                  </div>
+                </div>
+
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border ${
+                  missingDocs.length === 0 
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                    : "bg-red-50 text-red-700 border-red-200"
+                }`}>
+                  {missingDocs.length === 0 ? "All Documents Complete" : `${missingDocs.length} Pending Actions`}
+                </span>
+              </div>
+
+              {/* Document rows */}
+              <div className="divide-y divide-gray-100">
+                {(docs || []).length === 0 ? (
+                  <div className="p-8 text-center text-xs text-gray-500">
+                    No requirements records registered yet.
+                  </div>
+                ) : (
+                  (docs || []).map((doc: any) => {
+                    const isMissing = doc.status === "missing";
+                    const isSubmitted = doc.status === "submitted";
+                    const isVerified = doc.status === "verified";
+
+                    return (
+                      <div key={doc.id} className="p-3.5 sm:p-4 hover:bg-gray-50/60 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-gray-900">
+                              {doc.document_requirement?.doc_name || "Document Requirement"}
+                            </span>
+                            {doc.document_requirement?.is_conditional ? (
+                              <span className="text-[9px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded">
+                                {doc.document_requirement.condition_note || "Conditional"}
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.2 rounded">
+                                Mandatory
+                              </span>
+                            )}
+                          </div>
+
+                          {doc.remarks && (
+                            <p className="text-[11px] text-gray-500 mt-1 italic">
+                              Staff note: &ldquo;{doc.remarks}&rdquo;
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Status & Action */}
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                            isVerified
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : isSubmitted
+                              ? "bg-amber-50 text-amber-700 border border-amber-200"
+                              : "bg-red-50 text-red-700 border border-red-200"
+                          }`}>
+                            {doc.status}
+                          </span>
+
+                          {isMissing ? (
+                            doc.document_requirement?.requires_file_upload ? (
+                              <DocumentUploader documentId={doc.id} docName={doc.document_requirement?.doc_name || "Document"} />
+                            ) : (
+                              <span className="text-[11px] text-gray-400 font-medium">
+                                Submit physical copy to office
+                              </span>
+                            )
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>File Received</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
 
-            {missingDocs.length === 0 ? (
-              <div className="text-center py-6 bg-green-50/80 rounded-2xl border border-green-100">
-                <p className="text-green-600 text-2xl mb-2">✓</p>
-                <p className="text-sm font-bold text-green-700">All documents submitted!</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {missingDocs.map((doc: any) => (
-                  <div key={doc.id} className="bg-white/80 border border-slate-100 p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                    <p className="text-sm font-bold mb-1.5 text-ink">{doc.document_requirement?.doc_name || "Unknown Document"}</p>
-                    {doc.document_requirement?.requires_file_upload ? (
-                      <DocumentUploader documentId={doc.id} docName={doc.document_requirement?.doc_name || "Document"} />
-                    ) : (
-                      <p className="text-xs text-ink-muted">Please submit physical copy to office.</p>
+            {/* Active Deployment Card (if matched/deployed) */}
+            {deployment && (
+              <div className="bg-white border border-emerald-200 rounded-2xl p-4 sm:p-5 shadow-sm border-l-4 border-l-emerald-600">
+                <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-3">
+                  Active Deployment & Job Assignment
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase text-gray-500">Employer</p>
+                    <p className="text-xs sm:text-sm font-bold text-gray-900 mt-0.5">
+                      {deployment.batch?.job_order?.partner?.name || "Assigned Partner"}
+                    </p>
+                    <p className="text-[10px] font-bold text-emerald-700 uppercase mt-0.5">
+                      {deployment.batch?.job_order?.country || "Japan"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase text-gray-500">Trade & Position</p>
+                    <p className="text-xs sm:text-sm font-bold text-gray-900 mt-0.5">
+                      {deployment.batch?.job_order?.trade_name || deployment.batch?.job_order?.position || "—"}
+                    </p>
+                    <p className="text-[10px] font-medium text-gray-500 mt-0.5">
+                      {deployment.batch?.job_order?.program_name || "Technical Intern Training"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase text-gray-500">Visa & OEC</p>
+                    <p className={`text-xs sm:text-sm font-bold uppercase mt-0.5 ${
+                      deployment.visa_status === 'approved' ? 'text-emerald-700' : 'text-amber-700'
+                    }`}>
+                      Visa: {deployment.visa_status || 'In Progress'}
+                    </p>
+                    {deployment.oec_number && (
+                      <p className="text-[10px] font-mono text-gray-500 mt-0.5">OEC: {deployment.oec_number}</p>
                     )}
                   </div>
-                ))}
+                </div>
               </div>
             )}
           </div>
 
-          {/* 3. DEPLOYMENT INFO */}
-          {deployment && (
-            <div className="break-inside-avoid w-full bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-l-4 border-white/50 border-l-crimson">
-              <p className="text-xs font-bold uppercase tracking-widest mb-4 text-navy">Employer Match</p>
-              <div className="space-y-4">
+          {/* RIGHT COLUMN: Profile & Compliance Summary (4 cols) */}
+          <div className="lg:col-span-4 space-y-5">
+            
+            {/* Contact & Personal Info Card */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
+                <User className="w-4 h-4 text-primary" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800">
+                  Profile & Contact Info
+                </h3>
+              </div>
+
+              {/* Personal Details */}
+              <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wide text-ink-faint mb-0.5">Company</p>
-                  <p className="text-base font-bold text-ink">{deployment.batch?.job_order?.partner?.name || "—"}</p>
-                  <p className="text-xs font-bold uppercase text-crimson mt-0.5">{deployment.batch?.job_order?.country}</p>
+                  <p className="text-[10px] font-bold uppercase text-gray-400">Date of Birth</p>
+                  <p className="font-semibold text-gray-900 mt-0.5">{applicant.date_of_birth}</p>
                 </div>
-                {deployment.batch?.job_order?.position && (
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wide text-ink-faint mb-0.5">Position</p>
-                    <p className="text-sm font-bold text-ink">{deployment.batch.job_order.position}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* 4. PROFILE SUMMARY */}
-          <div className="break-inside-avoid w-full bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/50">
-            <div className="flex flex-row gap-4 mb-5 items-center">
-              {/* Profile Avatar */}
-              <div className="flex-shrink-0 w-20 h-20 sm:w-28 sm:h-28 rounded-2xl sm:rounded-3xl overflow-hidden border-[3px] sm:border-4 border-white shadow-md bg-slate-100 flex items-center justify-center">
-                {profilePictureUrl ? (
-                  <img src={profilePictureUrl} alt="Profile Picture" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-3xl sm:text-4xl font-black text-slate-300 uppercase">
-                    {applicant.full_name.charAt(0)}
-                  </span>
-                )}
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-gray-400">Gender</p>
+                  <p className="font-semibold text-gray-900 mt-0.5 capitalize">{applicant.gender}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-gray-400">Education</p>
+                  <p className="font-semibold text-gray-900 mt-0.5 truncate">{applicant.educational_attainment || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase text-gray-400">Passport Status</p>
+                  <p className="font-semibold text-gray-900 mt-0.5">{applicant.has_passport ? "Valid Passport" : "No Passport"}</p>
+                </div>
               </div>
 
-              <div className="flex-1 flex flex-col justify-center">
-                <p className="font-black text-lg sm:text-xl text-ink leading-tight">{applicant.full_name}</p>
-                {applicant.reference_number && (
-                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-ink-muted mt-1 font-mono">
-                    {applicant.reference_number}
-                  </p>
-                )}
-                {applicant.occupation_applied && (
-                  <span className="inline-block mt-2 px-2.5 py-1 bg-navy/5 border border-navy/10 text-navy font-bold text-[10px] sm:text-xs rounded-md w-fit">
-                    {applicant.occupation_applied}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-5 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Date of Birth</p>
-                <p className="font-medium text-sm text-ink">{applicant.date_of_birth}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-ink-faint mb-0.5">Gender</p>
-                <p className="font-medium text-sm capitalize text-ink">{applicant.gender}</p>
-              </div>
-            </div>
-
-            {/* Editable contact fields */}
-            <div className="pt-5 border-t border-slate-100">
+              {/* Editable Contacts */}
               <ProfileEditor
                 applicantId={applicant.id}
                 cellphone={applicant.cellphone_number}
@@ -241,98 +406,103 @@ export default async function ApplicantDashboardPage() {
                 address={applicant.home_address || ""}
               />
             </div>
-          </div>
 
-          {/* 5. STATUS CARDS ROW */}
-          <div className="break-inside-avoid w-full grid grid-cols-2 gap-4">
-            <div className="bg-white/95 backdrop-blur-md p-5 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center border border-white/50 group">
-              <p className="text-xs font-bold uppercase tracking-widest mb-1.5 text-navy opacity-80 group-hover:opacity-100 transition-opacity">Medical Status</p>
-              <p className={`text-sm font-black uppercase ${applicant.medical_status === 'fit' ? 'text-green-600' : applicant.medical_status === 'unfit' ? 'text-red-600' : 'text-amber-600'}`}>
-                {applicant.medical_status || "PENDING"}
-              </p>
-            </div>
-            <div className="bg-white/95 backdrop-blur-md p-5 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center border border-white/50 group">
-              <p className="text-xs font-bold uppercase tracking-widest mb-1.5 text-navy opacity-80 group-hover:opacity-100 transition-opacity">PDOS Training</p>
-              <p className={`text-sm font-black uppercase ${applicant.pdos_completed ? 'text-green-600' : 'text-amber-600'}`}>
-                {applicant.pdos_completed ? "Completed" : "Pending"}
-              </p>
-            </div>
-          </div>
+            {/* Compliance & Training Status */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
+                <ShieldCheck className="w-4 h-4 text-primary" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800">
+                  Compliance & Certifications
+                </h3>
+              </div>
 
-          {/* 6. DMW & PEOS DETAILS */}
-          <div className="break-inside-avoid w-full bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/50">
-            <p className="text-xs font-bold uppercase tracking-widest mb-5 text-navy">Compliance Status</p>
-            <div className="grid grid-cols-2 gap-5">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-ink-faint mb-1">DMW e-Registration #</p>
-                <p className="text-sm font-bold text-ink">
-                  {applicant.dmw_registration_number || <span className="text-amber-600 font-medium italic">Not yet registered</span>}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-ink-faint mb-1">PEOS Certificate</p>
-                <p className={`text-sm font-bold uppercase ${applicant.peos_certificate_status === 'completed' ? 'text-green-600' : applicant.peos_certificate_status === 'in_progress' ? 'text-amber-600' : 'text-slate-400'}`}>
-                  {applicant.peos_certificate_status?.replace(/_/g, " ") || "Not Started"}
-                </p>
-              </div>
-              <div className="col-span-2 mt-2">
-                <div className="flex justify-between items-end mb-2">
-                  <p className="text-xs font-bold uppercase tracking-wide text-ink-faint">PEOS Modules</p>
-                  <p className="text-xs font-bold text-ink-muted">{applicant.peos_modules_completed || 0} / 8 completed</p>
+              <div className="space-y-3 text-xs">
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-gray-50 border border-gray-100">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-gray-400">DMW Registration #</p>
+                    <p className="font-mono font-bold text-gray-900 mt-0.5">
+                      {applicant.dmw_registration_number || <span className="text-amber-600 font-sans italic font-normal">Pending</span>}
+                    </p>
+                  </div>
+                  <Building2 className="w-4 h-4 text-gray-400" />
                 </div>
-                <div className="flex gap-1.5">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-2.5 flex-1 rounded-full transition-all duration-500 ${i < (applicant.peos_modules_completed || 0) ? "bg-crimson shadow-sm" : "bg-slate-200"}`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* 7. SUBMITTED & VERIFIED DOCUMENTS */}
-          <div className="break-inside-avoid w-full bg-white p-6 rounded-3xl border border-border shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <p className="text-xs font-bold uppercase tracking-widest mb-5 text-navy">Document Status</p>
-            {submittedDocs.length === 0 && verifiedDocs.length === 0 ? (
-              <p className="text-sm text-center italic py-5 text-ink-faint">No documents submitted yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {[...verifiedDocs, ...submittedDocs].map((doc: any) => (
-                  <div key={doc.id} className="flex justify-between items-center py-3 border-b border-border last:border-0 hover:bg-slate-50 transition-colors rounded-lg px-2 -mx-2">
-                    <p className="text-sm font-medium text-ink">{doc.document_requirement?.doc_name || "Unknown Document"}</p>
-                    <span className={`text-xs font-black uppercase px-2.5 py-1 rounded-md shadow-sm ${doc.status === 'verified' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                      {doc.status}
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-gray-50 border border-gray-100">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-gray-400">Medical Examination</p>
+                    <p className={`font-bold mt-0.5 uppercase ${
+                      applicant.medical_status === 'fit' ? 'text-emerald-700' : applicant.medical_status === 'unfit' ? 'text-red-700' : 'text-amber-700'
+                    }`}>
+                      {applicant.medical_status || "PENDING"}
+                    </p>
+                  </div>
+                  <span className={`w-2.5 h-2.5 rounded-full ${
+                    applicant.medical_status === 'fit' ? 'bg-emerald-500' : applicant.medical_status === 'unfit' ? 'bg-red-500' : 'bg-amber-400'
+                  }`} />
+                </div>
+
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-gray-50 border border-gray-100">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase text-gray-400">PDOS Training</p>
+                    <p className={`font-bold mt-0.5 uppercase ${applicant.pdos_completed ? 'text-emerald-700' : 'text-amber-700'}`}>
+                      {applicant.pdos_completed ? "Completed" : "Pending"}
+                    </p>
+                  </div>
+                  <span className={`w-2.5 h-2.5 rounded-full ${applicant.pdos_completed ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+                </div>
+
+                {/* PEOS Progress */}
+                <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-100">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <p className="text-[10px] font-bold uppercase text-gray-400">PEOS Modules</p>
+                    <span className="text-[11px] font-bold text-gray-900">
+                      {applicant.peos_modules_completed || 0} / 8 Completed
                     </span>
                   </div>
-                ))}
+                  <div className="grid grid-cols-8 gap-1 mt-1">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`h-2 rounded-full transition-all ${
+                          i < (applicant.peos_modules_completed || 0)
+                            ? "bg-primary"
+                            : "bg-gray-200"
+                        }`}
+                        title={`Module ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-
-          {/* 8. CONTACT THE OFFICE */}
-          <div className="break-inside-avoid w-full bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-white/50 text-center">
-            <p className="text-xs font-bold uppercase tracking-widest mb-3 text-navy">Need Help?</p>
-            <p className="text-sm mb-5 text-ink-muted">
-              For questions about your application, contact our processing team.
-            </p>
-            <div className="flex gap-4 justify-center">
-              <a
-                href="mailto:support@phil-apex.com"
-                className="inline-flex items-center gap-2 text-sm font-bold px-5 py-3 rounded-xl border transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-95 text-navy border-navy/20 bg-navy/5 hover:bg-navy/10"
-              >
-                ✉️ Email Us
-              </a>
-              <a
-                href="tel:+639XXXXXXXXX"
-                className="inline-flex items-center gap-2 text-sm font-bold px-5 py-3 rounded-xl border transition-all hover:shadow-md hover:-translate-y-0.5 active:scale-95 text-crimson border-crimson/20 bg-crimson/5 hover:bg-crimson/10"
-              >
-                📞 Call Us
-              </a>
             </div>
-          </div>
 
+            {/* Assistance / Processing Office Card */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 shadow-sm text-center">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-1">
+                Need Help with Requirements?
+              </h3>
+              <p className="text-[11px] text-gray-500 mb-3">
+                Our recruitment officers are available to guide you through your application.
+              </p>
+              <div className="flex flex-col gap-2">
+                <a
+                  href="tel:+634326811"
+                  className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-xs"
+                >
+                  <Phone className="w-3.5 h-3.5 text-primary" />
+                  <span>Call Us: (+63) 432-6811</span>
+                </a>
+                <a
+                  href="mailto:philapexbacolod@gmail.com"
+                  className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-xs"
+                >
+                  <Mail className="w-3.5 h-3.5 text-primary" />
+                  <span>Email: philapexbacolod@gmail.com</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
         </div>
 
       </div>

@@ -9,6 +9,7 @@ import { ProgramsManager } from "@/components/programs-manager";
 import { PartnersManager } from "@/components/partners-manager";
 import { TradesManager } from "@/components/trades-manager";
 import { getAllTrades } from "@/lib/data/trades";
+import { getAllDocumentRequirements } from "@/lib/data/document-requirements";
 import { EmployerInvite } from "@/components/employer-invite";
 
 import { SystemSettingsManager } from "@/components/system-settings-manager";
@@ -20,10 +21,11 @@ export default async function PartnersPage() {
   if (context.staff.role === "front_desk") return notFound();
   const isAdmin = context.staff.role === "admin";
 
-  const [partners, programs, trades] = await Promise.all([
+  const [partners, programs, trades, requirements] = await Promise.all([
     getAllPartners(),
     getAllPrograms(),
     getAllTrades(),
+    getAllDocumentRequirements(),
   ]);
 
   return (
@@ -37,6 +39,7 @@ export default async function PartnersPage() {
         partners={partners}
         programs={programs}
         trades={trades}
+        requirements={requirements}
         isAdmin={isAdmin}
       />
     </StaffShell>

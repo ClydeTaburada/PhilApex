@@ -38,7 +38,8 @@ export default async function StaffApplicantDetailPage({
         />
       </StaffShell>
     );
-  } catch {
+  } catch (err) {
+    console.error("Error loading applicant detail:", err);
     notFound();
   }
 }

@@ -49,21 +49,20 @@ export function EmployerInvite({ partnerId, partnerName, contactEmail, accessCod
     <div className="mt-1">
       <button
         onClick={() => setShowDetails(!showDetails)}
-        className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md transition-all hover:bg-blue-50"
-        style={{ color: "var(--navy)" }}
+        className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md transition-all text-primary hover:bg-primary/10"
       >
         {showDetails ? "▾ Hide Portal Access" : "▸ Portal Access"}
       </button>
 
       {showDetails && (
-        <div className="mt-2 p-3 bg-blue-50/50 border border-blue-100 rounded-lg space-y-2">
+        <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-2">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wide text-blue-800 w-16">Email:</span>
-            <span className="text-xs font-medium text-blue-900">{email || "Not set"}</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 w-16">Email:</span>
+            <span className="text-xs font-semibold text-gray-900">{email || "Not set"}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wide text-blue-800 w-16">Code:</span>
-            <code className="text-xs font-mono font-bold bg-white px-2 py-1 rounded border border-blue-200 text-blue-900 tracking-widest select-all">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 w-16">Code:</span>
+            <code className="text-xs font-mono font-bold bg-white px-2 py-0.5 rounded border border-gray-300 text-gray-900 tracking-wider select-all">
               {code}
             </code>
           </div>
@@ -76,15 +75,14 @@ export function EmployerInvite({ partnerId, partnerName, contactEmail, accessCod
             <button
               onClick={handleCopy}
               disabled={!email}
-              className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border transition-all hover:shadow-sm disabled:opacity-40 active:scale-95"
-              style={{ color: "var(--navy)", borderColor: "var(--navy)", background: "white" }}
+              className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border border-primary text-primary bg-white hover:bg-primary/5 transition-all disabled:opacity-40"
             >
               {copied ? "✓ Copied!" : "📋 Copy Credentials"}
             </button>
             <button
               onClick={handleRegenerate}
               disabled={loading}
-              className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border transition-all hover:shadow-sm disabled:opacity-40 active:scale-95 text-amber-700 border-amber-300 bg-white"
+              className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border border-amber-300 text-amber-700 bg-white hover:bg-amber-50 transition-all disabled:opacity-40"
             >
               {loading ? "Generating..." : "🔄 Regenerate Code"}
             </button>
