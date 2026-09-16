@@ -19,6 +19,10 @@ const uploadFieldMap = [
     field: "photo_2x2_file",
     docName: "2x2 ID Photo",
   },
+  {
+    field: "birth_certificate_file",
+    docName: "PSA Authenticated Birth Certificate",
+  },
 ] as const;
 
 function getRequestIp(request: Request): string {

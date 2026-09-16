@@ -23,11 +23,15 @@ export function DocumentUploader({ documentId, docName }: { documentId: string, 
 
       // Compress if image
       if (file.type.startsWith("image/")) {
-        fileToUpload = await imageCompression(file, {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
-        });
+        try {
+          fileToUpload = await imageCompression(file, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+            useWebWorker: false,
+          });
+        } catch (compressionErr) {
+          console.warn("Client image compression skipped:", compressionErr);
+        }
       }
 
       if (fileToUpload.size > 5 * 1024 * 1024) {
