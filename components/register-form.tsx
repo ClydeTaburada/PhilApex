@@ -95,16 +95,7 @@ export function RegisterForm() {
   const [fileNames, setFileNames] = useState<Partial<Record<FileField, string>>>({});
   const [compressingField, setCompressingField] = useState<FileField | null>(null);
   const [copied, setCopied] = useState(false);
-  const DEFAULT_TRADES = [
-    "Caregiver",
-    "Construction Worker",
-    "Welder",
-    "Factory Worker",
-    "Agricultural Worker",
-    "Food Processing",
-    "Automotive Technician",
-  ];
-  const [positionOptions, setPositionOptions] = useState<string[]>(DEFAULT_TRADES);
+  const [positionOptions, setPositionOptions] = useState<string[]>([]);
   const [programs, setPrograms] = useState<{ id: string; name: string; description: string; country: string }[]>([]);
 
   useEffect(() => {
@@ -458,12 +449,22 @@ export function RegisterForm() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="form-field">
             <label className="form-label" htmlFor="reg-position">Preferred Trade / Position <span style={{ color: "var(--crimson)" }}>*</span></label>
-            <select id="reg-position" {...register("occupation_applied")} defaultValue="" className="form-select">
-              <option value="">Select preferred position</option>
-              {positionOptions.map((o) => (
-                <option key={o} value={o}>{o}</option>
-              ))}
-            </select>
+            {positionOptions.length > 0 ? (
+              <select id="reg-position" {...register("occupation_applied")} defaultValue="" className="form-select">
+                <option value="">Select preferred position</option>
+                {positionOptions.map((o) => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                id="reg-position"
+                type="text"
+                {...register("occupation_applied")}
+                placeholder="Enter preferred position (e.g. Caregiver, Welder...)"
+                className="form-input"
+              />
+            )}
             {errors.occupation_applied && <span className="form-error">{errors.occupation_applied.message}</span>}
           </div>
 
