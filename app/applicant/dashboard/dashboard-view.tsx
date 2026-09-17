@@ -378,73 +378,117 @@ export function ApplicantDashboardView({ applicant, docs, deployment, profilePic
 
         </div>
 
-        {/* ── 3. Touch-Friendly Segmented Tabs (No Scrollbar Track) ────────── */}
-        <div className="flex items-center gap-1 border-b border-gray-200 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pt-1">
+        {/* ── 3. Main Navigation Tabs (Sticky & 100% Visible on All Screens) ── */}
+        <div className="sticky top-2 z-30 grid grid-cols-4 gap-1 sm:gap-1.5 p-1 bg-white/95 backdrop-blur-md border border-gray-200/90 rounded-2xl shadow-sm">
+          {/* Tab 1: Documents */}
           <button
             type="button"
             onClick={() => setActiveTab("documents")}
-            className={`flex items-center gap-1.5 sm:gap-2 px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 px-1 sm:px-3 rounded-xl transition-all cursor-pointer relative ${
               activeTab === "documents"
-                ? "border-primary text-primary bg-primary/5 rounded-t-xl"
-                : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-t-xl"
+                ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/70 font-medium"
             }`}
           >
-            <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-            <span>Document Checklist</span>
+            <div className="relative shrink-0 flex items-center justify-center">
+              <FileText className="w-4 h-4" />
+              {missingDocs.length > 0 && (
+                <span
+                  className={`sm:hidden absolute -top-1.5 -right-2.5 min-w-[15px] h-[15px] px-0.5 rounded-full text-[9px] font-extrabold flex items-center justify-center leading-none ${
+                    activeTab === "documents" ? "bg-amber-400 text-amber-950" : "bg-amber-500 text-white"
+                  }`}
+                >
+                  {missingDocs.length}
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight sm:tracking-normal leading-tight">
+              <span className="sm:hidden">Documents</span>
+              <span className="hidden sm:inline">Document Checklist</span>
+            </span>
             {missingDocs.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+              <span
+                className={`hidden sm:inline-flex px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                  activeTab === "documents" ? "bg-white/20 text-white" : "bg-amber-100 text-amber-800"
+                }`}
+              >
                 {missingDocs.length}
               </span>
             )}
           </button>
 
+          {/* Tab 2: Compliance */}
           <button
             type="button"
             onClick={() => setActiveTab("compliance")}
-            className={`flex items-center gap-1.5 sm:gap-2 px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 px-1 sm:px-3 rounded-xl transition-all cursor-pointer relative ${
               activeTab === "compliance"
-                ? "border-primary text-primary bg-primary/5 rounded-t-xl"
-                : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-t-xl"
+                ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/70 font-medium"
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-            <span>Compliance & Training</span>
+            <div className="relative shrink-0 flex items-center justify-center">
+              <ShieldCheck className="w-4 h-4" />
+              <span
+                className={`sm:hidden absolute -top-1 -right-1.5 w-2 h-2 rounded-full ring-1 ring-white ${
+                  applicant.dmw_registration_number ? "bg-emerald-400" : "bg-amber-400"
+                }`}
+              />
+            </div>
+            <span className="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight sm:tracking-normal leading-tight">
+              <span className="sm:hidden">Compliance</span>
+              <span className="hidden sm:inline">Compliance & Training</span>
+            </span>
             <span
-              className={`w-2 h-2 rounded-full shrink-0 ${
-                applicant.dmw_registration_number ? "bg-emerald-500" : "bg-amber-400"
+              className={`hidden sm:inline-block w-2 h-2 rounded-full shrink-0 ${
+                applicant.dmw_registration_number
+                  ? activeTab === "compliance" ? "bg-emerald-300" : "bg-emerald-500"
+                  : activeTab === "compliance" ? "bg-amber-300" : "bg-amber-400"
               }`}
             />
           </button>
 
+          {/* Tab 3: Deployment */}
           <button
             type="button"
             onClick={() => setActiveTab("deployment")}
-            className={`flex items-center gap-1.5 sm:gap-2 px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 px-1 sm:px-3 rounded-xl transition-all cursor-pointer relative ${
               activeTab === "deployment"
-                ? "border-primary text-primary bg-primary/5 rounded-t-xl"
-                : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-t-xl"
+                ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/70 font-medium"
             }`}
           >
-            <Plane className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-            <span>Deployment Status</span>
+            <Plane className="w-4 h-4 shrink-0" />
+            <span className="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight sm:tracking-normal leading-tight">
+              <span className="sm:hidden">Deployment</span>
+              <span className="hidden sm:inline">Deployment Status</span>
+            </span>
             {deployment && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 shrink-0">
+              <span
+                className={`hidden sm:inline-flex px-1.5 py-0.2 rounded-full text-[10px] font-bold shrink-0 ${
+                  activeTab === "deployment" ? "bg-white/20 text-white" : "bg-emerald-100 text-emerald-800"
+                }`}
+              >
                 Matched
               </span>
             )}
           </button>
 
+          {/* Tab 4: Profile */}
           <button
             type="button"
             onClick={() => setActiveTab("profile")}
-            className={`flex items-center gap-1.5 sm:gap-2 px-3 py-2 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 px-1 sm:px-3 rounded-xl transition-all cursor-pointer relative ${
               activeTab === "profile"
-                ? "border-primary text-primary bg-primary/5 rounded-t-xl"
-                : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50 rounded-t-xl"
+                ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/70 font-medium"
             }`}
           >
-            <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-            <span>My Profile & Info</span>
+            <User className="w-4 h-4 shrink-0" />
+            <span className="text-[10px] sm:text-xs font-semibold sm:font-bold tracking-tight sm:tracking-normal leading-tight">
+              <span className="sm:hidden">Profile</span>
+              <span className="hidden sm:inline">My Profile & Info</span>
+            </span>
           </button>
         </div>
 
@@ -456,12 +500,12 @@ export function ApplicantDashboardView({ applicant, docs, deployment, profilePic
             <div className="space-y-3.5">
               {/* Filter Toolbar & Search */}
               <div className="bg-white border border-gray-200 rounded-2xl p-3 sm:p-3.5 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-                {/* Filter Chips with touch scroll */}
-                <div className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pb-1 sm:pb-0">
+                {/* Filter Chips - 2x2 grid on mobile, inline flex on desktop */}
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => setDocFilter("all")}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`px-2.5 py-1.5 sm:py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-center sm:text-left ${
                       docFilter === "all"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -473,7 +517,7 @@ export function ApplicantDashboardView({ applicant, docs, deployment, profilePic
                   <button
                     type="button"
                     onClick={() => setDocFilter("missing")}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`px-2.5 py-1.5 sm:py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-center sm:text-left ${
                       docFilter === "missing"
                         ? "bg-red-600 text-white shadow-xs"
                         : "bg-red-50 text-red-700 hover:bg-red-100"
@@ -485,7 +529,7 @@ export function ApplicantDashboardView({ applicant, docs, deployment, profilePic
                   <button
                     type="button"
                     onClick={() => setDocFilter("submitted")}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`px-2.5 py-1.5 sm:py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-center sm:text-left ${
                       docFilter === "submitted"
                         ? "bg-amber-600 text-white shadow-xs"
                         : "bg-amber-50 text-amber-700 hover:bg-amber-100"
@@ -497,7 +541,7 @@ export function ApplicantDashboardView({ applicant, docs, deployment, profilePic
                   <button
                     type="button"
                     onClick={() => setDocFilter("verified")}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`px-2.5 py-1.5 sm:py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-center sm:text-left ${
                       docFilter === "verified"
                         ? "bg-emerald-600 text-white shadow-xs"
                         : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
