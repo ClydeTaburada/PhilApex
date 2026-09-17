@@ -95,14 +95,23 @@ export function RegisterForm() {
   const [fileNames, setFileNames] = useState<Partial<Record<FileField, string>>>({});
   const [compressingField, setCompressingField] = useState<FileField | null>(null);
   const [copied, setCopied] = useState(false);
-  const [positionOptions, setPositionOptions] = useState<string[]>([]);
+  const DEFAULT_TRADES = [
+    "Caregiver",
+    "Construction Worker",
+    "Welder",
+    "Factory Worker",
+    "Agricultural Worker",
+    "Food Processing",
+    "Automotive Technician",
+  ];
+  const [positionOptions, setPositionOptions] = useState<string[]>(DEFAULT_TRADES);
   const [programs, setPrograms] = useState<{ id: string; name: string; description: string; country: string }[]>([]);
 
   useEffect(() => {
     fetch("/api/public/trades", { cache: "no-store" })
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setPositionOptions(data.map(d => d.name));
         }
       })
@@ -111,7 +120,7 @@ export function RegisterForm() {
     fetch("/api/public/programs", { cache: "no-store" })
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setPrograms(data);
         }
       })
