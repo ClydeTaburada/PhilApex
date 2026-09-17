@@ -98,8 +98,8 @@ export function SystemSettingsManager({ partners, programs, trades, requirements
                 <div className="mb-4">
                   <PartnersManager partners={partners} programs={programs} />
                 </div>
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
-                  <table className="w-full text-left text-xs whitespace-nowrap">
+                <div className="border border-gray-200 rounded-xl overflow-x-auto shadow-xs bg-white">
+                  <table className="w-full text-left text-xs whitespace-nowrap min-w-[820px]">
                     <thead className="sticky top-0 bg-gray-50 border-b border-gray-200 z-10 text-[11px] text-gray-500 font-semibold uppercase tracking-wider">
                       <tr>
                         <th className="px-4 py-3">Partner Name</th>
@@ -107,7 +107,7 @@ export function SystemSettingsManager({ partners, programs, trades, requirements
                         <th className="px-4 py-3 text-center">Final Employer?</th>
                         <th className="px-4 py-3">Program</th>
                         <th className="px-4 py-3">Chain</th>
-                        <th className="px-4 py-3">Portal Access</th>
+                        <th className="px-4 py-3 min-w-[160px]">Portal Access</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -141,7 +141,7 @@ export function SystemSettingsManager({ partners, programs, trades, requirements
                                     </div>
                                   ) : <span className="text-gray-400">—</span>}
                                 </td>
-                                <td className="px-4 py-2.5"><PartnerChain chain={topChain} /></td>
+                                <td className="px-4 py-2.5 max-w-[220px] truncate"><PartnerChain chain={topChain} /></td>
                                 <td className="px-4 py-2.5">
                                   <EmployerInvite partnerId={top.id} partnerName={top.name} contactEmail={top.contact_email} accessCode={top.access_code} isAdmin={isAdmin} />
                                 </td>
@@ -168,7 +168,7 @@ export function SystemSettingsManager({ partners, programs, trades, requirements
                                         </div>
                                       ) : <span className="text-gray-400">—</span>}
                                     </td>
-                                    <td className="px-4 py-2.5"><PartnerChain chain={childChain} /></td>
+                                    <td className="px-4 py-2.5 max-w-[220px] truncate"><PartnerChain chain={childChain} /></td>
                                     <td className="px-4 py-2.5">
                                       <EmployerInvite partnerId={child.id} partnerName={child.name} contactEmail={child.contact_email} accessCode={child.access_code} isAdmin={isAdmin} />
                                     </td>

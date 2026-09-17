@@ -215,6 +215,14 @@ export function PartnersManager({ partners, programs }: { partners: PartnerRow[]
                   placeholder="contact@organization.jp"
                 />
               </div>
+              <div className="space-y-1 sm:col-span-2">
+                <label className="text-[11px] font-semibold text-gray-600">Company Address</label>
+                <input
+                  name="contact_address"
+                  className="w-full px-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                  placeholder="e.g. Nagoya-shi, Aichi Prefecture, Japan"
+                />
+              </div>
             </div>
           </div>
 
