@@ -63,11 +63,15 @@ export default async function ApplicantDashboardPage() {
 
   let profilePictureUrl = null;
   if (pictureDoc?.file_path) {
-    const { data: { publicUrl } } = supabase
-      .storage
-      .from("applicant-documents")
-      .getPublicUrl(pictureDoc.file_path);
-    profilePictureUrl = publicUrl;
+    try {
+      const { data } = await supabase
+        .storage
+        .from("applicant-documents")
+        .createSignedUrl(pictureDoc.file_path, 86400);
+      profilePictureUrl = data?.signedUrl || null;
+    } catch {
+      profilePictureUrl = null;
+    }
   }
 
   return (

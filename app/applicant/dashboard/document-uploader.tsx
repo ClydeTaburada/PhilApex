@@ -61,13 +61,13 @@ export function DocumentUploader({ documentId, docName }: { documentId: string, 
   };
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-1">
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
         <button 
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-xs disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-xs disabled:opacity-50 shrink-0 cursor-pointer"
         >
           {uploading ? (
             <>
@@ -81,7 +81,7 @@ export function DocumentUploader({ documentId, docName }: { documentId: string, 
             </>
           )}
         </button>
-        <span className="text-[11px] text-gray-400">PDF, JPG, PNG (Max 5MB)</span>
+        <span className="text-[10px] text-gray-400">PDF, JPG, PNG (Max 5MB)</span>
       </div>
 
       <input 
